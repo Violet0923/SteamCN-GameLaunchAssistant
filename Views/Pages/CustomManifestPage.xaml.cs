@@ -78,6 +78,7 @@ public sealed partial class CustomManifestPage : Page
         txtDisplayName.Text = preset.GameDisplayName;
         txtInstallDir.Text = preset.InstallDir;
         txtClientExePath.Text = preset.ClientExePath;
+        txtLauncherExePath.Text = preset.LauncherExePath;
         txtExecutableFileName.Text = preset.ExecutableFileName;
         txtBuildId.Text = preset.BuildId;
         txtManifest.Text = preset.Manifest;
@@ -117,6 +118,7 @@ public sealed partial class CustomManifestPage : Page
             GameDisplayName = txtDisplayName.Text.Trim(),
             InstallDir = txtInstallDir.Text.Trim(),
             ClientExePath = txtClientExePath.Text.Trim(),
+            LauncherExePath = txtLauncherExePath.Text.Trim(),
             ExecutableFileName = txtExecutableFileName.Text.Trim(),
             Language = langTag,
         };
@@ -139,6 +141,7 @@ public sealed partial class CustomManifestPage : Page
             || form.GameDisplayName != preset.GameDisplayName
             || form.InstallDir != preset.InstallDir
             || form.ClientExePath != preset.ClientExePath
+            || form.LauncherExePath != preset.LauncherExePath
             || form.ExecutableFileName != preset.ExecutableFileName
             || form.Language != preset.Language;
     }
@@ -329,6 +332,31 @@ public sealed partial class CustomManifestPage : Page
     {
         txtClientExePath.Text = string.Empty;
         _logService.AddLog("[自定义页] 已清除可执行文件路径");
+    }
+
+    private async void BrowseLauncherExe_Click(object sender, RoutedEventArgs e)
+    {
+        var file = await PickLauncherExeAsync("自定义页-浏览游戏启动器");
+        if (file == null) return;
+
+        txtLauncherExePath.Text = file.Path;
+        _logService.AddLog($"[自定义页] 已选择游戏启动器：{file.Path}");
+    }
+
+    private void ClearLauncherExe_Click(object sender, RoutedEventArgs e)
+    {
+        txtLauncherExePath.Text = string.Empty;
+        _logService.AddLog("[自定义页] 已清除游戏启动器路径");
+    }
+
+    private async Task<Windows.Storage.StorageFile?> PickLauncherExeAsync(string context)
+    {
+        var picker = new FileOpenPicker();
+        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+        picker.FileTypeFilter.Add(".exe");
+        picker.SuggestedStartLocation = PickerLocationId.ComputerFolder;
+        return await PickFileSafelyAsync(picker, context);
     }
 
     // ── SteamDB 获取（基于用户输入的 AppID / DepotID） ────────────────────────
@@ -526,6 +554,41 @@ public sealed partial class CustomManifestPage : Page
     }
 
     // ── 显式保存 ──────────────────────────────────────────────────────────────
+
+    private async void OpenLauncher_Click(object sender, RoutedEventArgs e)
+    {
+        var launcherExe = txtLauncherExePath.Text.Trim();
+
+        if (string.IsNullOrEmpty(launcherExe) || !File.Exists(launcherExe))
+        {
+            _logService.AddLog(string.IsNullOrEmpty(launcherExe)
+                ? "[自定义页] 尚未指定游戏启动器，请手动选择"
+                : $"[自定义页] 游戏启动器不存在，请重新选择：{launcherExe}");
+
+            var file = await PickLauncherExeAsync("自定义页-打开游戏启动器");
+            if (file == null) return;
+
+            launcherExe = file.Path;
+            txtLauncherExePath.Text = launcherExe;
+        }
+
+        try
+        {
+            var psi = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = launcherExe,
+                UseShellExecute = true,
+                WorkingDirectory = Path.GetDirectoryName(launcherExe)
+            };
+            System.Diagnostics.Process.Start(psi);
+            _logService.AddLog($"[自定义页] 已启动游戏启动器：{launcherExe}");
+        }
+        catch (Exception ex)
+        {
+            _logService.AddLog($"[自定义页] 启动器打开失败：{ex.Message}");
+            await ShowInfoAsync($"无法打开游戏启动器：\n{ex.Message}");
+        }
+    }
 
     private async void Save_Click(object sender, RoutedEventArgs e)
     {
