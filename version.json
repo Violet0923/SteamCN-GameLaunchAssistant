@@ -1,8 +1,8 @@
 {
-  "version": "2.3.2",
-  "releaseDate": "2026-07-12",
-  "availableAfter": "2026-07-12T20:00:00+08:00",
-  "message": "修复自定义Manifest页无法为套壳启动器类游戏填写子目录占位EXE路径的问题(#29)",
+  "version": "2.3.3",
+  "releaseDate": "2026-08-16",
+  "availableAfter": "2026-08-16T20:00:00+08:00",
+  "message": "自定义Manifest页新增可选的游戏启动器路径，支持保存并一键打开对应启动器(#35)",
   "downloadUrl": {
     "domestic": "https://pan.baidu.com/s/1ME9K0eUarabvG81FpWe7RA?pwd=kafu",
     "global": "https://github.com/iRyougi/WutheringWavesSteamHelper/releases/latest"
