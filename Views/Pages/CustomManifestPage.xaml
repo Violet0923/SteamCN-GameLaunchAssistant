@@ -117,6 +117,24 @@
                                FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                     <StackPanel Spacing="6">
+                        <TextBlock Text="游戏启动器（可选）" FontWeight="Medium"/>
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="txtLauncherExePath"
+                                     PlaceholderText="例如 D:\Games\xxx\launcher.exe"/>
+                            <Button Grid.Column="1" Content="浏览" Click="BrowseLauncherExe_Click"/>
+                            <Button Grid.Column="2" Content="清除" Click="ClearLauncherExe_Click"/>
+                        </Grid>
+                    </StackPanel>
+                    <TextBlock Text="提示：该路径用于下方的「打开游戏启动器」功能，并会随当前预设保存。"
+                               TextWrapping="Wrap"
+                               FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+
+                    <StackPanel Spacing="6">
                         <TextBlock Text="Steam 占位文件名" FontWeight="Medium"/>
                         <TextBox x:Name="txtExecutableFileName"
                                  PlaceholderText="留空则用 &lt;显示名&gt;.exe"/>
@@ -165,6 +183,10 @@
                         Content="复制启动命令到剪贴板"
                         HorizontalAlignment="Stretch"
                         Click="CopyCommand_Click"/>
+                <Button x:Name="btnOpenLauncher"
+                        Content="打开游戏启动器"
+                        HorizontalAlignment="Stretch"
+                        Click="OpenLauncher_Click"/>
                 <Button x:Name="btnSave"
                         Content="保存当前配置"
                         HorizontalAlignment="Stretch"

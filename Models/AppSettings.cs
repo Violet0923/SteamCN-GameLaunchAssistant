@@ -42,7 +42,8 @@ public class AppSettings
                    || !string.IsNullOrWhiteSpace(current.Manifest)
                    || !string.IsNullOrWhiteSpace(current.GameDisplayName)
                    || !string.IsNullOrWhiteSpace(current.InstallDir)
-                   || !string.IsNullOrWhiteSpace(current.ClientExePath);
+                   || !string.IsNullOrWhiteSpace(current.ClientExePath)
+                   || !string.IsNullOrWhiteSpace(current.LauncherExePath);
 
         if (hasData)
         {
@@ -57,6 +58,7 @@ public class AppSettings
                 GameDisplayName = current.GameDisplayName,
                 InstallDir = current.InstallDir,
                 ClientExePath = current.ClientExePath,
+                LauncherExePath = current.LauncherExePath,
                 ExecutableFileName = current.ExecutableFileName,
                 Language = current.Language,
             });
@@ -78,6 +80,7 @@ public class CustomManifestPreset
     public string GameDisplayName { get; set; } = "";
     public string InstallDir { get; set; } = "";
     public string ClientExePath { get; set; } = "";        // 真实游戏 exe 完整路径（用于复制启动命令）
+    public string LauncherExePath { get; set; } = "";      // 游戏启动器 exe 完整路径（用于直接打开启动器）
     public string ExecutableFileName { get; set; } = "";   // v2.3.0 新增：Steam 占位 exe 文件名
     public string Language { get; set; } = "schinese";
 }
