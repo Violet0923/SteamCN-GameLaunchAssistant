@@ -539,7 +539,14 @@ public sealed partial class WutheringWavesPage : Page
         _settings.Manifest = txtManifest.Text.Trim();
         _settings.CnGameSource = rdoWeGame.IsChecked == true ? "wegame" : "official";
 
-        if (!_settingsService.Save(_settings))
+        var saved = _settingsService.Update(settings =>
+        {
+            settings.BuildId = _settings.BuildId;
+            settings.Manifest = _settings.Manifest;
+            settings.CnGameSource = _settings.CnGameSource;
+        });
+
+        if (!saved)
             _logService.AddLog("[警告] 设置保存失败，下次启动将无法自动填入");
     }
 

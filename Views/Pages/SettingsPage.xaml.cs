@@ -419,7 +419,17 @@ public sealed partial class SettingsPage : Page
 
     private void SaveSettings()
     {
-        _settingsService.Save(_settings);
+        // 设置页只写入自己管理的全局字段，避免用过期快照覆盖动态自定义配置。
+        _settingsService.Update(settings =>
+        {
+            settings.SteamInstallPath = _settings.SteamInstallPath;
+            settings.SteamLibraryPath = _settings.SteamLibraryPath;
+            settings.SteamId = _settings.SteamId;
+            settings.DeveloperMode = _settings.DeveloperMode;
+            settings.DebugMode = _settings.DebugMode;
+            settings.BetaChannel = _settings.BetaChannel;
+            settings.Language = _settings.Language;
+        });
     }
 
     private async Task ShowInfoAsync(string message)

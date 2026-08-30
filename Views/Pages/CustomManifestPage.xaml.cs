@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 using System.Collections.Specialized;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage.Pickers;
@@ -12,12 +13,16 @@ public sealed partial class CustomManifestPage : Page
 {
     private readonly SteamService _steamService = new();
     private readonly SettingsService _settingsService = new();
+    private readonly CustomManifestService _customManifestService = CustomManifestService.Instance;
     private readonly LogService _logService = LogService.Instance;
     private AppSettings _settings = new();
-
-    // 预设列表与守卫（避免 SelectionChanged 事件重入）
+    private CustomManifestPreset? _preset;
     private List<CustomManifestPreset> _presets = new();
     private bool _suppressSelectionChanged;
+    private bool _formLoaded;
+    private bool _deleted;
+
+    public string PresetId { get; private set; } = "";
 
     // 是否已在本次页面生命周期内提示过手动输入路径的风险
     private bool _clientExePathWarningShown = false;
@@ -39,40 +44,44 @@ public sealed partial class CustomManifestPage : Page
             logScrollViewer.ChangeView(null, logScrollViewer.ScrollableHeight, null);
         };
         _logService.Logs.CollectionChanged += _logScrollHandler;
-
-        _settings = _settingsService.Load();
-        _settings.EnsureCustomManifestPresets();
-        _presets = _settings.CustomManifestPresets;
-
-        // 选中上次记住的预设；找不到则取第一个
-        var index = _presets.FindIndex(
-            p => string.Equals(p.Name, _settings.CurrentCustomManifestName, StringComparison.OrdinalIgnoreCase));
-        if (index < 0) index = 0;
-
-        RefreshPresetComboBox(index);
-        LoadPreset(_presets[index]);
-        UpdateGlobalConfigInfoBar();
-    }
-
-    /// <summary>用 _presets 重填下拉，并选中指定项（带事件守卫）。</summary>
-    private void RefreshPresetComboBox(int selectedIndex)
-    {
-        _suppressSelectionChanged = true;
-        cmbPreset.ItemsSource = null;
-        cmbPreset.ItemsSource = _presets;
-        if (_presets.Count > 0)
-            cmbPreset.SelectedIndex = Math.Clamp(selectedIndex, 0, _presets.Count - 1);
-        _suppressSelectionChanged = false;
     }
 
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
+        PersistCurrentPreset(showFailureLog: false);
         if (_logScrollHandler != null)
             _logService.Logs.CollectionChanged -= _logScrollHandler;
     }
 
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+
+        PresetId = e.Parameter as string ?? _customManifestService.GetCurrentId();
+        _presets = _customManifestService.GetAll().ToList();
+        _preset = _presets.FirstOrDefault(p =>
+            string.Equals(p.Id, PresetId, StringComparison.OrdinalIgnoreCase))
+            ?? _presets.FirstOrDefault();
+        if (_preset == null) return;
+
+        PresetId = _preset.Id;
+        _settings = _settingsService.Load();
+        RefreshPresetComboBox(PresetId);
+        LoadPreset(_preset);
+        UpdateGlobalConfigInfoBar();
+        _formLoaded = true;
+    }
+
+    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    {
+        PersistCurrentPreset(showFailureLog: false);
+        base.OnNavigatedFrom(e);
+    }
+
     private void LoadPreset(CustomManifestPreset preset)
     {
+        btnRenamePreset.IsEnabled = !preset.IsBuiltIn;
+        btnDeletePreset.IsEnabled = !preset.IsBuiltIn;
         txtAppId.Text = preset.AppId;
         txtDepotId.Text = preset.DepotId;
         txtDisplayName.Text = preset.GameDisplayName;
@@ -103,14 +112,16 @@ public sealed partial class CustomManifestPage : Page
         globalConfigInfoBar.IsOpen = missing;
     }
 
-    /// <summary>从表单构造预设。Name 取当前选中预设的名字（未选中则「默认」）。</summary>
+    /// <summary>从表单构造当前自定义配置。</summary>
     private CustomManifestPreset BuildPresetFromUI()
     {
         var langTag = (cmbLanguageCode.SelectedItem as ComboBoxItem)?.Tag as string ?? "schinese";
-        var current = GetSelectedPreset();
+        var current = _preset;
         return new CustomManifestPreset
         {
+            Id = current?.Id ?? PresetId,
             Name = current?.Name is { Length: > 0 } name ? name : "默认",
+            IsBuiltIn = current?.IsBuiltIn ?? false,
             AppId = txtAppId.Text.Trim(),
             DepotId = txtDepotId.Text.Trim(),
             BuildId = txtBuildId.Text.Trim(),
@@ -126,111 +137,83 @@ public sealed partial class CustomManifestPage : Page
 
     private CustomManifestPreset? GetSelectedPreset()
     {
-        var idx = cmbPreset.SelectedIndex;
-        return idx >= 0 && idx < _presets.Count ? _presets[idx] : null;
+        return _preset;
     }
 
-    /// <summary>判断表单内容是否与给定预设逐字段不一致（忽略 Name）。</summary>
-    private bool IsDirtyAgainst(CustomManifestPreset preset)
+    // ── 自定义页面管理 ──────────────────────────────────────────────────────────
+
+    private void RefreshPresetComboBox(string selectedId)
     {
-        var form = BuildPresetFromUI();
-        return form.AppId != preset.AppId
-            || form.DepotId != preset.DepotId
-            || form.BuildId != preset.BuildId
-            || form.Manifest != preset.Manifest
-            || form.GameDisplayName != preset.GameDisplayName
-            || form.InstallDir != preset.InstallDir
-            || form.ClientExePath != preset.ClientExePath
-            || form.LauncherExePath != preset.LauncherExePath
-            || form.ExecutableFileName != preset.ExecutableFileName
-            || form.Language != preset.Language;
+        _suppressSelectionChanged = true;
+        try
+        {
+            cmbPreset.ItemsSource = null;
+            cmbPreset.ItemsSource = _presets;
+            cmbPreset.SelectedItem = _presets.FirstOrDefault(p =>
+                string.Equals(p.Id, selectedId, StringComparison.OrdinalIgnoreCase));
+        }
+        finally
+        {
+            _suppressSelectionChanged = false;
+        }
     }
 
-    // ── 预设管理 ──────────────────────────────────────────────────────────────
-
-    private int _lastSelectedIndex = -1;
-
-    private async void Preset_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void Preset_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (_suppressSelectionChanged)
+        if (_suppressSelectionChanged || cmbPreset.SelectedItem is not CustomManifestPreset selected)
+            return;
+        if (string.Equals(selected.Id, PresetId, StringComparison.OrdinalIgnoreCase))
+            return;
+
+        if (!PersistCurrentPreset())
         {
-            _lastSelectedIndex = cmbPreset.SelectedIndex;
+            RefreshPresetComboBox(PresetId);
             return;
         }
 
-        // 在 await 前快照索引，避免对话框期间列表被其它处理器修改导致错位
-        var newIndex = cmbPreset.SelectedIndex;
-        var prevIndex = _lastSelectedIndex;
-        if (newIndex < 0 || newIndex >= _presets.Count)
+        var target = _customManifestService.GetById(selected.Id);
+        if (target == null)
         {
-            _lastSelectedIndex = newIndex;
+            _presets = _customManifestService.GetAll().ToList();
+            RefreshPresetComboBox(PresetId);
             return;
         }
 
-        // 切换前若上一个预设有未保存改动，弹确认
-        if (prevIndex >= 0 && prevIndex < _presets.Count
-            && prevIndex != newIndex
-            && IsDirtyAgainst(_presets[prevIndex]))
-        {
-            var dialog = new ContentDialog
-            {
-                Title = "放弃未保存的改动？",
-                Content = "当前表单存在未保存的改动，切换预设将丢失这些改动。是否继续？",
-                PrimaryButtonText = "放弃改动并切换",
-                CloseButtonText = "取消",
-                XamlRoot = XamlRoot
-            };
-            if (await dialog.ShowAsync() != ContentDialogResult.Primary)
-            {
-                // 回滚选择（校验快照索引在 await 后仍有效）
-                _suppressSelectionChanged = true;
-                cmbPreset.SelectedIndex = (prevIndex >= 0 && prevIndex < _presets.Count) ? prevIndex : 0;
-                _suppressSelectionChanged = false;
-                _lastSelectedIndex = cmbPreset.SelectedIndex;
-                return;
-            }
-        }
+        _preset = target;
+        PresetId = target.Id;
+        _deleted = false;
+        LoadPreset(_preset);
 
-        // await 后列表可能已变化，重新校验目标索引
-        if (newIndex < 0 || newIndex >= _presets.Count)
-        {
-            _lastSelectedIndex = cmbPreset.SelectedIndex;
-            return;
-        }
-
-        _lastSelectedIndex = newIndex;
-        LoadPreset(_presets[newIndex]);
+        // 保持下拉框与左侧导航的选中状态一致。
+        _customManifestService.Select(PresetId, notifyNavigation: true);
     }
 
     private async void NewPreset_Click(object sender, RoutedEventArgs e)
     {
-        var name = await PromptForPresetNameAsync("新建预设", "");
+        var name = await PromptForPresetNameAsync("新建自定义", "");
         if (name == null) return;
 
-        var preset = new CustomManifestPreset { Name = name };
-        _presets.Add(preset);
-        var index = _presets.Count - 1;
-        RefreshPresetComboBox(index);
-        _lastSelectedIndex = index;
-        LoadPreset(preset);
-        PersistCurrentPreset();
-        _logService.AddLog($"[自定义页] 已新建预设：{name}");
+        var created = _customManifestService.Create(name);
+        if (created == null)
+        {
+            await ShowInfoAsync("无法新建自定义配置，请稍后重试。");
+            return;
+        }
+        _logService.AddLog($"[自定义页] 已新建自定义：{name}");
     }
 
     private async void SaveAsPreset_Click(object sender, RoutedEventArgs e)
     {
-        var name = await PromptForPresetNameAsync("另存为新预设", "");
+        var name = await PromptForPresetNameAsync("另存为新自定义", "");
         if (name == null) return;
 
-        var preset = BuildPresetFromUI();
-        preset.Name = name;
-        _presets.Add(preset);
-        var index = _presets.Count - 1;
-        RefreshPresetComboBox(index);
-        _lastSelectedIndex = index;
-        LoadPreset(preset);
-        PersistCurrentPreset();
-        _logService.AddLog($"[自定义页] 已另存为预设：{name}");
+        var created = _customManifestService.Create(name, BuildPresetFromUI());
+        if (created == null)
+        {
+            await ShowInfoAsync("无法保存新的自定义配置，请稍后重试。");
+            return;
+        }
+        _logService.AddLog($"[自定义页] 已另存为新自定义：{name}");
     }
 
     private async void RenamePreset_Click(object sender, RoutedEventArgs e)
@@ -238,15 +221,20 @@ public sealed partial class CustomManifestPage : Page
         var current = GetSelectedPreset();
         if (current == null) return;
 
-        var name = await PromptForPresetNameAsync("重命名预设", current.Name, current.Name);
+        var name = await PromptForPresetNameAsync("重命名自定义", current.Name, current.Id);
         if (name == null) return;
 
-        current.Name = name;
-        var index = cmbPreset.SelectedIndex;
-        RefreshPresetComboBox(index);
-        _lastSelectedIndex = index;
-        PersistCurrentPreset();
-        _logService.AddLog($"[自定义页] 预设已重命名为：{name}");
+        if (!_customManifestService.Rename(current.Id, name))
+        {
+            await ShowInfoAsync("重命名失败，请稍后重试。");
+            return;
+        }
+        _presets = _customManifestService.GetAll().ToList();
+        _preset = _presets.First(p =>
+            string.Equals(p.Id, current.Id, StringComparison.OrdinalIgnoreCase));
+        RefreshPresetComboBox(current.Id);
+        LoadPreset(_preset);
+        _logService.AddLog($"[自定义页] 已重命名为：{name}");
     }
 
     private async void DeletePreset_Click(object sender, RoutedEventArgs e)
@@ -256,30 +244,29 @@ public sealed partial class CustomManifestPage : Page
 
         var dialog = new ContentDialog
         {
-            Title = "删除预设",
-            Content = $"确定要删除预设「{current.Name}」吗？此操作不可撤销。",
+            Title = "删除自定义",
+            Content = $"确定要删除自定义「{current.Name}」吗？此操作不可撤销。",
             PrimaryButtonText = "删除",
             CloseButtonText = "取消",
             XamlRoot = XamlRoot
         };
         if (await dialog.ShowAsync() != ContentDialogResult.Primary) return;
 
-        _presets.Remove(current);
-        if (_presets.Count == 0)
-            _presets.Add(new CustomManifestPreset { Name = "默认" });
-
-        RefreshPresetComboBox(0);
-        _lastSelectedIndex = 0;
-        LoadPreset(_presets[0]);
-        PersistCurrentPreset();
-        _logService.AddLog($"[自定义页] 已删除预设：{current.Name}");
+        _deleted = true;
+        if (_customManifestService.Delete(current.Id) == null)
+        {
+            _deleted = false;
+            await ShowInfoAsync("删除失败，请稍后重试。");
+            return;
+        }
+        _logService.AddLog($"[自定义页] 已删除自定义：{current.Name}");
     }
 
     /// <summary>
-    /// 弹出对话框输入预设名，校验非空且不与现有重名（OrdinalIgnoreCase）。
-    /// 取消或校验失败返回 null；excludeName 为允许保留的原名（重命名时排除自身）。
+    /// 弹出对话框输入侧边栏名称，校验非空且不与现有配置重名。
+    /// 取消或校验失败返回 null；excludeId 用于重命名时排除当前配置。
     /// </summary>
-    private async Task<string?> PromptForPresetNameAsync(string title, string defaultText, string? excludeName = null)
+    private async Task<string?> PromptForPresetNameAsync(string title, string defaultText, string? excludeId = null)
     {
         var textBox = new TextBox { Text = defaultText, PlaceholderText = "请输入预设名称" };
         var dialog = new ContentDialog
@@ -299,10 +286,7 @@ public sealed partial class CustomManifestPage : Page
             return null;
         }
 
-        var duplicate = _presets.Any(p =>
-            !(excludeName != null && string.Equals(p.Name, excludeName, StringComparison.OrdinalIgnoreCase))
-            && string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
-        if (duplicate)
+        if (_customManifestService.NameExists(name, excludeId))
         {
             await ShowInfoAsync($"已存在同名预设「{name}」，请换一个名称。");
             return null;
@@ -592,34 +576,39 @@ public sealed partial class CustomManifestPage : Page
 
     private async void Save_Click(object sender, RoutedEventArgs e)
     {
-        PersistCurrentPreset();
-        _logService.AddLog("[自定义页] 已保存当前配置");
-        await ShowInfoAsync("当前配置已保存。下次打开该页将自动恢复。");
+        if (PersistCurrentPreset())
+        {
+            _logService.AddLog("[自定义页] 已保存当前配置");
+            await ShowInfoAsync("当前配置已保存。下次打开该页将自动恢复。");
+        }
+        else
+        {
+            await ShowInfoAsync("当前配置保存失败，请稍后重试。");
+        }
     }
 
     /// <summary>
-    /// 把当前表单写回选中预设，并镜像到 CurrentCustomManifest / CurrentCustomManifestName，落盘。
-    /// 仅重载全局字段（Steam 路径等），不重载预设列表，避免覆盖内存中的预设改动。
+    /// 把当前表单按稳定 Id 原子写回，页面离开时也会自动保存。
     /// </summary>
-    private void PersistCurrentPreset()
+    private bool PersistCurrentPreset(bool showFailureLog = true)
     {
-        var index = cmbPreset.SelectedIndex;
+        if (!_formLoaded || _deleted || _preset == null || string.IsNullOrWhiteSpace(PresetId))
+            return true;
+
         var built = BuildPresetFromUI();
-
-        if (index >= 0 && index < _presets.Count)
-            _presets[index] = built;
-        else if (_presets.Count == 0)
-            _presets.Add(built);
-
-        // 重载磁盘设置以拿到最新全局字段，再覆盖预设相关字段
-        var disk = _settingsService.Load();
-        disk.CustomManifestPresets = _presets;
-        disk.CurrentCustomManifest = built;
-        disk.CurrentCustomManifestName = built.Name;
-        _settings = disk;
-
-        if (!_settingsService.Save(_settings))
+        var saved = _customManifestService.Update(built);
+        if (saved)
+        {
+            _preset = built;
+            var index = _presets.FindIndex(p =>
+                string.Equals(p.Id, built.Id, StringComparison.OrdinalIgnoreCase));
+            if (index >= 0)
+                _presets[index] = built.Clone();
+        }
+        else if (showFailureLog)
             _logService.AddLog("[自定义页][警告] 设置保存失败");
+
+        return saved;
     }
 
     // ── 校验 ──────────────────────────────────────────────────────────────────

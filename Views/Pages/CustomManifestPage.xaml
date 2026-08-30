@@ -18,7 +18,7 @@
                      IsOpen="False"
                      IsClosable="False"/>
 
-            <!-- 预设 -->
+            <!-- 预设管理：保留原自定义页的完整下拉切换功能 -->
             <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
                     CornerRadius="8" Padding="16">

@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Windowing;
 using Windows.Graphics;
 using Windows.UI;
+using WetheringWavesSteamHelper_WinUI.Models;
 using WetheringWavesSteamHelper_WinUI.Services;
 
 namespace WetheringWavesSteamHelper_WinUI;
@@ -11,6 +12,11 @@ public sealed partial class MainWindow : Window
 {
     private string _forceDownloadUrl = "";
     private AppWindow? _appWindow;
+    private readonly CustomManifestService _customManifestService = CustomManifestService.Instance;
+    private bool _refreshingCustomNavigation;
+    private bool _addingCustomManifest;
+
+    private sealed record CustomNavigationTag(string Id);
 
     public MainWindow()
     {
@@ -27,6 +33,10 @@ public sealed partial class MainWindow : Window
 
         // 订阅更新通知（主窗口负责全局展示）
         UpdateService.Instance.UpdateAvailable += OnUpdateAvailable;
+        _customManifestService.NavigationChanged += OnCustomNavigationChanged;
+        Closed += (_, _) => _customManifestService.NavigationChanged -= OnCustomNavigationChanged;
+
+        RefreshCustomNavigation();
 
         // 默认选中第一项（鸣潮）
         NavView.SelectedItem = NavView.MenuItems[0];
@@ -140,7 +150,14 @@ public sealed partial class MainWindow : Window
 
     private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
+        if (_refreshingCustomNavigation) return;
         if (args.SelectedItem is not NavigationViewItem item) return;
+
+        if (item.Tag is CustomNavigationTag customTag)
+        {
+            NavigateToCustom(customTag.Id);
+            return;
+        }
 
         var tag = item.Tag?.ToString();
         switch (tag)
@@ -148,14 +165,133 @@ public sealed partial class MainWindow : Window
             case "WutheringWaves":
                 ContentFrame.Navigate(typeof(Views.Pages.WutheringWavesPage));
                 break;
-            case "CustomManifest":
-                ContentFrame.Navigate(typeof(Views.Pages.CustomManifestPage));
-                break;
             case "Settings":
                 ContentFrame.Navigate(typeof(Views.Pages.SettingsPage));
+                break;
+            case "CustomManifestHome":
+                NavigateToCustom(_customManifestService.GetBuiltInId());
                 break;
             case "Placeholder":
                 break;
         }
+    }
+
+    private void RefreshCustomNavigation(string? preferredId = null)
+    {
+        _refreshingCustomNavigation = true;
+        try
+        {
+            var dynamicItems = NavView.MenuItems
+                .OfType<NavigationViewItem>()
+                .Where(item => item.Tag is CustomNavigationTag)
+                .ToList();
+            foreach (var item in dynamicItems)
+                NavView.MenuItems.Remove(item);
+
+            var insertIndex = NavView.MenuItems.IndexOf(AddCustomNavItem);
+            foreach (var preset in _customManifestService.GetSidebarItems())
+            {
+                var item = new NavigationViewItem
+                {
+                    Content = preset.Name,
+                    Tag = new CustomNavigationTag(preset.Id),
+                    Icon = new FontIcon { Glyph = "\uE7FC" }
+                };
+                ToolTipService.SetToolTip(item, preset.Name);
+                NavView.MenuItems.Insert(insertIndex++, item);
+            }
+
+            if (!string.IsNullOrWhiteSpace(preferredId))
+            {
+                var builtInId = _customManifestService.GetBuiltInId();
+                var target = string.Equals(preferredId, builtInId, StringComparison.OrdinalIgnoreCase)
+                    ? CustomManifestNavItem
+                    : NavView.MenuItems
+                        .OfType<NavigationViewItem>()
+                        .FirstOrDefault(item => item.Tag is CustomNavigationTag custom
+                            && string.Equals(custom.Id, preferredId, StringComparison.OrdinalIgnoreCase));
+                if (target != null)
+                    NavView.SelectedItem = target;
+            }
+        }
+        finally
+        {
+            _refreshingCustomNavigation = false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(preferredId))
+            NavigateToCustom(preferredId);
+    }
+
+    private void NavigateToCustom(string id)
+    {
+        if (ContentFrame.Content is Views.Pages.CustomManifestPage current
+            && string.Equals(current.PresetId, id, StringComparison.OrdinalIgnoreCase))
+        {
+            _customManifestService.Select(id);
+            return;
+        }
+
+        // 先导航，让旧页面在 OnNavigatedFrom 中保存；再记录新选中项，
+        // 否则旧页的自动保存会把 CurrentCustomManifestId 改回旧 Id。
+        ContentFrame.Navigate(typeof(Views.Pages.CustomManifestPage), id);
+        _customManifestService.Select(id);
+    }
+
+    private async void AddCustomNavItem_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
+    {
+        if (_addingCustomManifest) return;
+        _addingCustomManifest = true;
+        try
+        {
+            var textBox = new TextBox { PlaceholderText = "请输入侧边栏名称", MinWidth = 320 };
+            var dialog = new ContentDialog
+            {
+                Title = "添加自定义",
+                Content = textBox,
+                PrimaryButtonText = "添加",
+                CloseButtonText = "取消",
+                DefaultButton = ContentDialogButton.Primary,
+                XamlRoot = NavView.XamlRoot
+            };
+
+            if (await dialog.ShowAsync() != ContentDialogResult.Primary) return;
+
+            var name = textBox.Text.Trim();
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                await ShowInfoAsync("自定义名称不能为空。");
+                return;
+            }
+            if (_customManifestService.NameExists(name))
+            {
+                await ShowInfoAsync($"已存在同名自定义「{name}」，请换一个名称。");
+                return;
+            }
+
+            if (_customManifestService.Create(name) == null)
+                await ShowInfoAsync("无法保存新的自定义配置，请稍后重试。");
+        }
+        finally
+        {
+            _addingCustomManifest = false;
+        }
+    }
+
+    private void OnCustomNavigationChanged(string? preferredId)
+    {
+        DispatcherQueue.TryEnqueue(() => RefreshCustomNavigation(preferredId));
+    }
+
+    private async Task ShowInfoAsync(string message)
+    {
+        var dialog = new ContentDialog
+        {
+            Title = "提示",
+            Content = message,
+            CloseButtonText = "确定",
+            XamlRoot = NavView.XamlRoot
+        };
+        await dialog.ShowAsync();
     }
 }

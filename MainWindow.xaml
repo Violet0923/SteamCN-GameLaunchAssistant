@@ -60,7 +60,7 @@
                         IsBackButtonVisible="Collapsed"
                         IsSettingsVisible="False"
                         PaneDisplayMode="Left"
-                        OpenPaneLength="150"
+                        OpenPaneLength="210"
                         CompactPaneLength="48"
                         IsPaneOpen="True"
                         SelectionChanged="NavView_SelectionChanged">
@@ -71,9 +71,15 @@
                         <FontIcon Glyph="&#xE7FC;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="自定义" Tag="CustomManifest">
+                <NavigationViewItemHeader Content="已添加的自定义"/>
+                <!-- 自定义页面导航项由 MainWindow 从设置动态插入到此按钮之前 -->
+                <NavigationViewItem x:Name="AddCustomNavItem"
+                                    Content="添加自定义"
+                                    Tag="AddCustomManifest"
+                                    SelectsOnInvoked="False"
+                                    Tapped="AddCustomNavItem_Tapped">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE7C3;"/>
+                        <FontIcon Glyph="&#xE710;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem Content="敬请期待" Tag="Placeholder" IsEnabled="False">
@@ -85,6 +91,11 @@
 
             <!-- 底部设置入口 -->
             <NavigationView.FooterMenuItems>
+                <NavigationViewItem x:Name="CustomManifestNavItem" Content="自定义" Tag="CustomManifestHome">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE7C3;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem Content="设置" Tag="Settings">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE713;"/>
