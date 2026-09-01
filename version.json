@@ -1,11 +1,11 @@
 {
-  "version": "2.3.3",
-  "releaseDate": "2026-08-16",
-  "availableAfter": "2026-08-16T20:00:00+08:00",
-  "message": "自定义Manifest页新增可选的游戏启动器路径，支持保存并一键打开对应启动器(#35)",
+  "version": "2.4.0",
+  "releaseDate": "2026-09-01",
+  "availableAfter": "2026-09-01T00:00:00+08:00",
+  "message": "自定义配置现可动态添加到左侧导航栏，同时保留原有预设下拉框及完整功能",
   "downloadUrl": {
-    "domestic": "https://pan.baidu.com/s/1ME9K0eUarabvG81FpWe7RA?pwd=kafu",
-    "global": "https://github.com/iRyougi/WutheringWavesSteamHelper/releases/latest"
+    "domestic": "https://github.com/Violet0923/WutheringWavesSteamHelper/releases/latest",
+    "global": "https://github.com/Violet0923/WutheringWavesSteamHelper/releases/latest"
   },
   "forceUpdate": false
 }
