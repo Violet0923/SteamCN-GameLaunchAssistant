@@ -1,18 +1,12 @@
 # WutheringWavesSteamHelper
 
-鸣潮 Steam 助手 - 用于在 Steam 库中添加鸣潮游戏，实现 Steam 启动器管理。
+鸣潮 Steam 助手 - 一款实现套壳游玩任何在steam上线的国内游戏，同时享受steam时长记录和截图等功能，电脑本地只需下载一份国服文件即可。
 此处说明不一定会及时更新，详细文档请访问[鸣潮Steam助手帮助文档](https://www.iryougi.com/index.php/wutheringwavessteamhelper/)
-
-## 简介
-
-WutheringWavesSteamHelper 是一个通过生成必要的配置文件，让玩家可以通过 Steam 客户端启动和管理国服鸣潮。
-
-自 v2.2.0 起，应用同时支持「自定义 Manifest」页面，允许用户为任意 Steam 游戏自定义 AppID / DepotID / BuildID / Manifest 等字段，生成对应 ACF 配置并复制启动命令。
 
 ## 主要功能
 
 - **鸣潮专属页面**：一键生成鸣潮 ACF 配置 / 复制国服客户端启动命令 / 打开官方启动器
-- **自定义 Manifest 页（v2.2.0 新增，v2.3.0 增强）**：自由填写任意游戏的 AppID/DepotID/BuildID/Manifest，生成 `appmanifest_<AppID>.acf` 与占位可执行文件；支持多预设管理（新建 / 另存为 / 重命名 / 删除）
+- **自定义添加游戏**：自由填写任意上线steam的游戏的 AppID/DepotID/BuildID/Manifest，生成 `appmanifest_<AppID>.acf` 与占位可执行文件；支持多预设管理（新建 / 另存为 / 重命名 / 删除）
 - **Steam 全局配置**：Steam 安装路径、SteamLibrary 路径、SteamID 在「设置」中统一管理，全应用共享
 
 ## 系统要求
@@ -21,22 +15,12 @@ WutheringWavesSteamHelper 是一个通过生成必要的配置文件，让玩家
 - .NET 8.0 运行时
 - Visual Studio Community 2022, 17.14.29 (March 2026)
 - 已安装 Steam 客户端
-- Steam游戏库内已入库鸣潮游戏
-
-test test
 
 ## 技术说明
-
 - **框架**：.NET 8 WinUI 3（Windows App SDK）
 - **开发**：iRyougi
 - **游戏 AppID**：3513350
 - **主要 Depot**：3513351
-
-## 赞助
-
-如果这个工具帮到了你，欢迎请开发者喝杯奶茶～
-
-<img src=".github/sponsor/wechat-reward.jpg" alt="微信赞赏码" width="300" />
 
 ## 免责声明
 
