@@ -23,6 +23,8 @@ WutheringWavesSteamHelper 是一个通过生成必要的配置文件，让玩家
 - 已安装 Steam 客户端
 - Steam游戏库内已入库鸣潮游戏
 
+test test
+
 ## 技术说明
 
 - **框架**：.NET 8 WinUI 3（Windows App SDK）
