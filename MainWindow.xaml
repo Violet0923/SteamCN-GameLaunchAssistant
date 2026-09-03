@@ -91,9 +91,9 @@
 
             <!-- 底部设置入口 -->
             <NavigationView.FooterMenuItems>
-                <NavigationViewItem x:Name="CustomManifestNavItem" Content="自定义" Tag="CustomManifestHome">
+                <NavigationViewItem Content="外观设置" Tag="AppearanceSettings">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE7C3;"/>
+                        <FontIcon Glyph="&#xE790;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem Content="设置" Tag="Settings">

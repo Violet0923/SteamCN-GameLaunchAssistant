@@ -190,7 +190,7 @@ public sealed partial class WutheringWavesPage : Page
         var originalContent = btnFetchSteamDB.Content;
         btnFetchSteamDB.Content = "正在获取...";
 
-        _logService.AddLog("正在从 SteamDB 获取 BuildID 和 Manifest...");
+        _logService.AddLog("正在获取 BuildID 和 Manifest（steamcmd.net）...");
 
         try
         {
@@ -205,7 +205,7 @@ public sealed partial class WutheringWavesPage : Page
             else
             {
                 _logService.AddLog("获取失败，请检查网络连接或手动填写");
-                await ShowInfoAsync("无法从 SteamDB 获取信息，请检查网络连接。\n\n也可以手动访问 https://steamdb.info/app/3513350/depots/ 获取信息后填写。");
+                await ShowInfoAsync("无法从游戏信息服务获取信息，请检查网络连接。\n\n也可以手动访问 https://steamdb.info/app/3513350/depots/ 获取信息后填写。");
             }
         }
         catch (Exception ex)

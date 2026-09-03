@@ -15,6 +15,16 @@ WutheringWavesSteamHelper 是一个通过生成必要的配置文件，让玩家
 - **自定义 Manifest 页（v2.2.0 新增，v2.3.0 增强）**：自由填写任意游戏的 AppID/DepotID/BuildID/Manifest，生成 `appmanifest_<AppID>.acf` 与占位可执行文件；支持多预设管理（新建 / 另存为 / 重命名 / 删除）
 - **Steam 全局配置**：Steam 安装路径、SteamLibrary 路径、SteamID 在「设置」中统一管理，全应用共享
 
+### 根据 AppID 自动填充
+
+在自定义页面填写 AppID，点击「自动获取游戏信息」，即可通过 steamcmd.net 获取显示名称、安装目录、Steam 占位 EXE、DepotID 以及公开分支的 BuildID / Manifest。名称优先使用页面所选语言，安装目录保留 Steam 登记值。真实游戏 EXE / 启动器位置仍需本地选择。
+
+唯一候选会直接填入；多个 Depot 或启动 EXE 会显示候选列表，同一个 EXE 的不同启动参数会合并展示。选择 Depot 时会同步对应 Manifest。当前 ACF 仍只支持一个 Depot，多个 Depot 可能需要共同使用，请核对后选择；此功能不保证生成完整安装配置。
+
+网络失败或缺失字段会保留原值并标明未验证。请求期间修改输入、切换语言、切换预设或离开页面，会丢弃过期结果。获取不会直接写入 Steam 文件，配置保存继续沿用现有按钮及离开页面时的自动保存流程。
+
+扩展设计、边界和验收说明见 [AppID 自动填充需求](APPID_AUTO_FILL_REQUIREMENTS.md)。开发验证方式见 [回归检查说明](Tests/SteamAppInfo.Tests/README.md)。
+
 ## 系统要求
 
 - Windows 操作系统（Windows 10/11）基于x64

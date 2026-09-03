@@ -168,8 +168,8 @@ public sealed partial class MainWindow : Window
             case "Settings":
                 ContentFrame.Navigate(typeof(Views.Pages.SettingsPage));
                 break;
-            case "CustomManifestHome":
-                NavigateToCustom(_customManifestService.GetBuiltInId());
+            case "AppearanceSettings":
+                ContentFrame.Navigate(typeof(Views.Pages.AppearanceSettingsPage));
                 break;
             case "Placeholder":
                 break;
@@ -203,15 +203,12 @@ public sealed partial class MainWindow : Window
 
             if (!string.IsNullOrWhiteSpace(preferredId))
             {
-                var builtInId = _customManifestService.GetBuiltInId();
-                var target = string.Equals(preferredId, builtInId, StringComparison.OrdinalIgnoreCase)
-                    ? CustomManifestNavItem
-                    : NavView.MenuItems
-                        .OfType<NavigationViewItem>()
-                        .FirstOrDefault(item => item.Tag is CustomNavigationTag custom
-                            && string.Equals(custom.Id, preferredId, StringComparison.OrdinalIgnoreCase));
-                if (target != null)
-                    NavView.SelectedItem = target;
+                // 旧版内置预设仍可通过页面下拉框访问，但不再有固定的侧边栏入口。
+                // 找不到对应导航项时清除选中态，避免错误高亮“外观设置”等其他页面。
+                NavView.SelectedItem = NavView.MenuItems
+                    .OfType<NavigationViewItem>()
+                    .FirstOrDefault(item => item.Tag is CustomNavigationTag custom
+                        && string.Equals(custom.Id, preferredId, StringComparison.OrdinalIgnoreCase));
             }
         }
         finally

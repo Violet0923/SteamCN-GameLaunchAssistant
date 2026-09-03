@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Models/SteamAppInfo.cs" Link="Models/SteamAppInfo.cs" />
+    <Compile Include="../../Services/SteamAppInfoService.cs" Link="Services/SteamAppInfoService.cs" />
+    <Compile Include="../../Services/SteamAppSelectionService.cs" Link="Services/SteamAppSelectionService.cs" />
+    <Compile Include="../../Services/SteamPathValidator.cs" Link="Services/SteamPathValidator.cs" />
+  </ItemGroup>
+</Project>
