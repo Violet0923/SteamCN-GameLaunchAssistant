@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace WetheringWavesSteamHelper_WinUI.Models;
+namespace SteamCNGameLaunchAssistant.Models;
 
 /// <summary>
 /// 远程 version.json 的反序列化模型。

@@ -1,7 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
-namespace WetheringWavesSteamHelper_WinUI.Views.Pages;
+namespace SteamCNGameLaunchAssistant.Views.Pages;
 
 public sealed partial class EmptyGameLibraryPage : Page
 {

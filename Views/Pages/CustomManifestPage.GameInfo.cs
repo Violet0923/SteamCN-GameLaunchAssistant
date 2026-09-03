@@ -1,9 +1,9 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using WetheringWavesSteamHelper_WinUI.Models;
-using WetheringWavesSteamHelper_WinUI.Services;
+using SteamCNGameLaunchAssistant.Models;
+using SteamCNGameLaunchAssistant.Services;
 
-namespace WetheringWavesSteamHelper_WinUI.Views.Pages;
+namespace SteamCNGameLaunchAssistant.Views.Pages;
 
 public sealed partial class CustomManifestPage
 {

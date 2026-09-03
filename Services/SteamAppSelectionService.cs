@@ -1,6 +1,6 @@
-using WetheringWavesSteamHelper_WinUI.Models;
+using SteamCNGameLaunchAssistant.Models;
 
-namespace WetheringWavesSteamHelper_WinUI.Services;
+namespace SteamCNGameLaunchAssistant.Services;
 
 /// <summary>Pure selection policy, independent of HTTP and WinUI. No game-specific IDs or filenames.</summary>
 public static class SteamAppSelectionService

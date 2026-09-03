@@ -3,10 +3,10 @@ using Microsoft.UI.Xaml.Controls;
 using System.Collections.Specialized;
 using Windows.Storage.Pickers;
 using Windows.ApplicationModel.DataTransfer;
-using WetheringWavesSteamHelper_WinUI.Services;
-using WetheringWavesSteamHelper_WinUI.Models;
+using SteamCNGameLaunchAssistant.Services;
+using SteamCNGameLaunchAssistant.Models;
 
-namespace WetheringWavesSteamHelper_WinUI.Views.Pages;
+namespace SteamCNGameLaunchAssistant.Views.Pages;
 
 public sealed partial class WutheringWavesPage : Page
 {

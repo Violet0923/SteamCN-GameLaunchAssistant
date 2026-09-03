@@ -3,10 +3,10 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Windowing;
 using Windows.Graphics;
 using Windows.UI;
-using WetheringWavesSteamHelper_WinUI.Models;
-using WetheringWavesSteamHelper_WinUI.Services;
+using SteamCNGameLaunchAssistant.Models;
+using SteamCNGameLaunchAssistant.Services;
 
-namespace WetheringWavesSteamHelper_WinUI;
+namespace SteamCNGameLaunchAssistant;
 
 public sealed partial class MainWindow : Window
 {
@@ -98,7 +98,7 @@ public sealed partial class MainWindow : Window
 
         _appWindow.Title = AppInfo.WindowTitle;
 
-        var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "Icons", "WutheringWavesSteamHelper.ico");
+        var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "Icons", "SteamCN-GameLaunchAssistant.ico");
         if (File.Exists(iconPath))
         {
             _appWindow.SetIcon(iconPath);

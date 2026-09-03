@@ -1,4 +1,4 @@
-namespace WetheringWavesSteamHelper_WinUI.Services;
+namespace SteamCNGameLaunchAssistant.Services;
 
 /// <summary>Windows relative paths used inside steamapps/common, shared by lookup and generation.</summary>
 public static class SteamPathValidator

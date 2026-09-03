@@ -1,8 +1,8 @@
 using System.Net.Http;
 using System.Text.Json;
-using WetheringWavesSteamHelper_WinUI.Models;
+using SteamCNGameLaunchAssistant.Models;
 
-namespace WetheringWavesSteamHelper_WinUI.Services;
+namespace SteamCNGameLaunchAssistant.Services;
 
 /// <summary>
 /// 更新检查服务（单例）。
@@ -18,20 +18,20 @@ public sealed class UpdateService
 
     // ── 生产地址 ──────────────────────────────────────────────────────────────
     private const string GitHubRawUrl =
-        "https://raw.githubusercontent.com/iRyougi/WutheringWavesSteamHelper/master/version.json";
+        "https://raw.githubusercontent.com/Violet0923/SteamCN-GameLaunchAssistant/master/version.json";
 
     private const string MirrorRawUrl =
-        "https://ghfast.top/https://raw.githubusercontent.com/iRyougi/WutheringWavesSteamHelper/master/version.json";
+        "https://ghfast.top/https://raw.githubusercontent.com/Violet0923/SteamCN-GameLaunchAssistant/master/version.json";
 
     private const string GitHubProbeUrl =
-        "https://raw.githubusercontent.com/iRyougi/WutheringWavesSteamHelper/master/version.json";
+        "https://raw.githubusercontent.com/Violet0923/SteamCN-GameLaunchAssistant/master/version.json";
 
     // ── 测试版渠道地址 ────────────────────────────────────────────────────────
     private const string BetaRawUrl =
-        "https://raw.githubusercontent.com/iRyougi/WutheringWavesSteamHelper/preview/version.json";
+        "https://raw.githubusercontent.com/Violet0923/SteamCN-GameLaunchAssistant/preview/version.json";
 
     private const string BetaMirrorUrl =
-        "https://ghfast.top/https://raw.githubusercontent.com/iRyougi/WutheringWavesSteamHelper/preview/version.json";
+        "https://ghfast.top/https://raw.githubusercontent.com/Violet0923/SteamCN-GameLaunchAssistant/preview/version.json";
 
     // ── Debug 模式本地地址 ────────────────────────────────────────────────────
     private const string DebugLocalUrl = "http://127.0.0.1:9090/version.json";

@@ -371,3 +371,5 @@ FodyWeavers.xsd
 Output/
 docs/
 .worktrees/
+# Track the maintained installer source
+!/SteamCN-GameLaunchAssistant.iss

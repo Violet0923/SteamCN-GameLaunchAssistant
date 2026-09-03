@@ -1,11 +1,12 @@
 using System.Text.Json;
-using WetheringWavesSteamHelper_WinUI.Models;
+using SteamCNGameLaunchAssistant.Models;
 
-namespace WetheringWavesSteamHelper_WinUI.Services;
+namespace SteamCNGameLaunchAssistant.Services;
 
 public class SettingsService
 {
     private static readonly object SyncRoot = new();
+    // Keep the legacy directory so upgrading the renamed app preserves all game settings.
     private static readonly string DefaultSettingsPath = Path.Combine(
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                      "WutheringWavesSteamHelper"),

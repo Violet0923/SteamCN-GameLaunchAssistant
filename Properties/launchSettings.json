@@ -1,9 +1,9 @@
 {
   "profiles": {
-    "WetheringWavesSteamHelper_WinUI (Package)": {
+    "SteamCN-GameLaunchAssistant (Package)": {
       "commandName": "MsixPackage"
     },
-    "WetheringWavesSteamHelper_WinUI (Unpackaged)": {
+    "SteamCN-GameLaunchAssistant (Unpackaged)": {
       "commandName": "Project"
     }
   }

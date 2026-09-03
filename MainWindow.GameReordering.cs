@@ -6,7 +6,7 @@ using Microsoft.UI.Xaml.Media;
 using Windows.Foundation;
 using Windows.System;
 
-namespace WetheringWavesSteamHelper_WinUI;
+namespace SteamCNGameLaunchAssistant;
 
 public sealed partial class MainWindow
 {

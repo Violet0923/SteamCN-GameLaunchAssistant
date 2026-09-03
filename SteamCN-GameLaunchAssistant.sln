@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.37111.16 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WetheringWavesSteamHelper_WinUI", "WetheringWavesSteamHelper_WinUI.csproj", "{D4EEB485-77AF-481B-A13E-00B00464AADD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamCN-GameLaunchAssistant", "SteamCN-GameLaunchAssistant.csproj", "{D4EEB485-77AF-481B-A13E-00B00464AADD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

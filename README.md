@@ -25,12 +25,15 @@ Steam国服游戏启动助手，用于在 Steam 库中添加和管理国服游�
 ## 系统要求
 
 - Windows 操作系统（Windows 10/11）基于x64
-- .NET 8.0 运行时
-- Visual Studio Community 2022, 17.14.29 (March 2026)
+- 官方安装包包含 .NET 和 Windows App SDK 运行库
 - 已安装 Steam 客户端
 - Steam 游戏库内已入库对应游戏
 
 ## 技术说明
+
+程序文件名为 `SteamCN-GameLaunchAssistant.exe`，项目入口为 `SteamCN-GameLaunchAssistant.sln`。中文显示名称为「Steam国服游戏启动助手」。旧版本升级继续读取原配置目录，保留已添加游戏和排序。
+
+开发环境使用 .NET 8 SDK、Windows SDK 和支持 WinUI 3 的 Visual Studio。安装包构建方式见 [发布说明](packaging/README.md)。
 
 通过自动化配置游戏的acf文件欺骗steam已经下载游戏本体，随后通过启动命令诱导启动国服游戏本体
 

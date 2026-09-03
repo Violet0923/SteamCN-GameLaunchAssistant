@@ -3,21 +3,21 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
-    <RootNamespace>WetheringWavesSteamHelper_WinUI</RootNamespace>
+    <RootNamespace>SteamCNGameLaunchAssistant</RootNamespace>
+    <AssemblyName>SteamCN-GameLaunchAssistant</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>x86;x64;ARM64</Platforms>
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
-    <PublishProfile>win-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
     <WindowsAppSdkDeploymentManagerInitialize>false</WindowsAppSdkDeploymentManagerInitialize>
     <Nullable>enable</Nullable>
-    <Version>2.4.0</Version>
+    <Version>2.5.0</Version>
     <Product>Steam国服游戏启动助手</Product>
     <AssemblyTitle>Steam国服游戏启动助手</AssemblyTitle>
     <Description>在 Steam 库中添加和管理国服游戏的启动配置</Description>
     <Company>KAMITSUBAKI STUDIO</Company>
-	<ApplicationIcon>Assets\Icons\WutheringWavesSteamHelper.ico</ApplicationIcon>  
+    <ApplicationIcon>Assets\Icons\SteamCN-GameLaunchAssistant.ico</ApplicationIcon>
     <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
 	<WindowsPackageType>None</WindowsPackageType>
   </PropertyGroup>
@@ -34,7 +34,7 @@
     <Page Remove="Output\**" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="WutheringWavesSteamHelper.iss" />
+    <None Remove="SteamCN-GameLaunchAssistant.iss" />
   </ItemGroup>
 
   <ItemGroup>
@@ -60,7 +60,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Assets\Icons\WutheringWavesSteamHelper.ico">
+    <None Update="Assets\Icons\SteamCN-GameLaunchAssistant.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -75,6 +75,9 @@
   </PropertyGroup>
 
   <!-- Publish Properties -->
+  <PropertyGroup Condition="'$(WindowsAppSDKSelfContained)' == 'true'">
+    <DefineConstants>$(DefineConstants);WINDOWS_APP_SDK_SELF_CONTAINED</DefineConstants>
+  </PropertyGroup>
   <PropertyGroup>
     <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
     <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>

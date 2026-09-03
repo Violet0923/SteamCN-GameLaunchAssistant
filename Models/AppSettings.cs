@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace WetheringWavesSteamHelper_WinUI.Models;
+namespace SteamCNGameLaunchAssistant.Models;
 
 public class AppSettings
 {

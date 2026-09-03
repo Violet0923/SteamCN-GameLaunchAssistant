@@ -1,6 +1,6 @@
 using System.Net;
-using WetheringWavesSteamHelper_WinUI.Models;
-using WetheringWavesSteamHelper_WinUI.Services;
+using SteamCNGameLaunchAssistant.Models;
+using SteamCNGameLaunchAssistant.Services;
 
 // Dependency-free regression runner: dotnet run --project Tests/SteamAppInfo.Tests
 var checks = 0;

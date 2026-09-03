@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
-namespace WetheringWavesSteamHelper_WinUI;
+namespace SteamCNGameLaunchAssistant;
 
 internal static class Program
 {
@@ -13,7 +13,7 @@ internal static class Program
 
     private static readonly string EarlyCrashLogPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "WetheringWavesSteamHelper_WinUI",
+        "SteamCN-GameLaunchAssistant",
         "logs",
         "early-startup.log");
 
@@ -37,6 +37,7 @@ internal static class Program
     {
         WriteEarlyLog("Program.Main.Start", null);
 
+        // Preserve the legacy mutex to prevent old and renamed builds editing settings together.
         _singleInstanceMutex = new Mutex(true, @"Local\WetheringWavesSteamHelper_WinUI_SingleInstance", out var isFirstInstance);
         if (!isFirstInstance)
         {
@@ -51,13 +52,16 @@ internal static class Program
             return;
         }
 
+#if !WINDOWS_APP_SDK_SELF_CONTAINED
         var bootstrapInitialized = false;
+#endif
 
         try
         {
             WinRT.ComWrappersSupport.InitializeComWrappers();
             WriteEarlyLog("Program.Main.ComWrappers.Initialized", null);
 
+#if !WINDOWS_APP_SDK_SELF_CONTAINED
             var options = Bootstrap.InitializeOptions.OnNoMatch_ShowUI | Bootstrap.InitializeOptions.OnPackageIdentity_NOOP;
             if (Bootstrap.TryInitialize(0x00010008, "", new PackageVersion(), options, out var hr))
             {
@@ -69,6 +73,8 @@ internal static class Program
                 WriteEarlyLog($"Program.Main.Bootstrap.TryInitialize.False.HResult=0x{hr:X8}", null);
             }
 
+#endif
+            // Self-contained builds use the SDK's registration-free WinRT auto-initializer.
             Application.Start(_ =>
             {
                 WriteEarlyLog("Application.Start.Callback.Enter", null);
@@ -89,6 +95,7 @@ internal static class Program
         }
         finally
         {
+#if !WINDOWS_APP_SDK_SELF_CONTAINED
             if (bootstrapInitialized)
             {
                 try
@@ -101,6 +108,7 @@ internal static class Program
                     WriteEarlyLog("Program.Main.Bootstrap.Shutdown.Catch", ex);
                 }
             }
+#endif
         }
     }
 

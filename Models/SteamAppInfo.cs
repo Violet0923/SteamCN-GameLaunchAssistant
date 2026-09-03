@@ -1,4 +1,4 @@
-namespace WetheringWavesSteamHelper_WinUI.Models;
+namespace SteamCNGameLaunchAssistant.Models;
 
 // These models describe upstream metadata, independently of the current single-depot preset UI.
 public sealed record SteamAppInfo(

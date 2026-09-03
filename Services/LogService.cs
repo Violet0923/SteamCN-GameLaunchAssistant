@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Text;
 
-namespace WetheringWavesSteamHelper_WinUI.Services;
+namespace SteamCNGameLaunchAssistant.Services;
 
 public class LogService
 {
@@ -53,7 +53,7 @@ public class LogService
         {
             var fallback = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "WetheringWavesSteamHelper_WinUI", "logs");
+                "SteamCN-GameLaunchAssistant", "logs");
             Directory.CreateDirectory(fallback);
             return fallback;
         }

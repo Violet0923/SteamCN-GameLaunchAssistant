@@ -1,7 +1,7 @@
 using Microsoft.Win32;
-using WetheringWavesSteamHelper_WinUI.Models;
+using SteamCNGameLaunchAssistant.Models;
 
-namespace WetheringWavesSteamHelper_WinUI.Services;
+namespace SteamCNGameLaunchAssistant.Services;
 
 /// <summary>
 /// 生成 ACF 所需的全部字段。鸣潮页与自定义 Manifest 页共用同一份参数模型。

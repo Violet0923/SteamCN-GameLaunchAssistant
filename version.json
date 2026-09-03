@@ -1,11 +1,11 @@
 {
-  "version": "2.4.0",
-  "releaseDate": "2026-09-01",
-  "availableAfter": "2026-09-01T00:00:00+08:00",
-  "message": "自定义配置现可动态添加到左侧导航栏，同时保留原有预设下拉框及完整功能",
+  "version": "2.5.0",
+  "releaseDate": "2026-09-04",
+  "availableAfter": "2026-09-04T00:00:00+08:00",
+  "message": "新增 AppID 自动填充、多候选选择、空游戏列表与拖动排序；程序和安装包更名为 SteamCN-GameLaunchAssistant，兼容已有游戏配置。",
   "downloadUrl": {
-    "domestic": "https://github.com/Violet0923/WutheringWavesSteamHelper/releases/latest",
-    "global": "https://github.com/Violet0923/WutheringWavesSteamHelper/releases/latest"
+    "domestic": "https://github.com/Violet0923/SteamCN-GameLaunchAssistant/releases/latest",
+    "global": "https://github.com/Violet0923/SteamCN-GameLaunchAssistant/releases/latest"
   },
   "forceUpdate": false
 }

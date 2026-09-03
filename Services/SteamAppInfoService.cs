@@ -1,9 +1,9 @@
 using System.Globalization;
 using System.Net;
 using System.Text.Json;
-using WetheringWavesSteamHelper_WinUI.Models;
+using SteamCNGameLaunchAssistant.Models;
 
-namespace WetheringWavesSteamHelper_WinUI.Services;
+namespace SteamCNGameLaunchAssistant.Services;
 
 public interface ISteamAppInfoService
 {
@@ -44,7 +44,7 @@ public sealed class SteamAppInfoService : ISteamAppInfoService
         try
         {
             using var request = new HttpRequestMessage(HttpMethod.Get, new Uri(_endpoint, normalizedId));
-            request.Headers.UserAgent.ParseAdd("WutheringWavesSteamHelper");
+            request.Headers.UserAgent.ParseAdd("SteamCN-GameLaunchAssistant");
             using var response = await _client.SendAsync(request, cancellationToken).ConfigureAwait(false);
             if (response.StatusCode == HttpStatusCode.NotFound)
                 throw new SteamAppInfoException("未找到该 AppID 的公开信息，请检查 AppID。");

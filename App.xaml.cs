@@ -1,16 +1,16 @@
 using Microsoft.UI.Xaml;
 using System.Runtime.InteropServices;
 using System.Text;
-using WetheringWavesSteamHelper_WinUI.Services;
+using SteamCNGameLaunchAssistant.Services;
 
-namespace WetheringWavesSteamHelper_WinUI;
+namespace SteamCNGameLaunchAssistant;
 
 public partial class App : Application
 {
     public static Window MainWindow { get; private set; } = null!;
     private static readonly string CrashLogPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "WetheringWavesSteamHelper_WinUI",
+        "SteamCN-GameLaunchAssistant",
         "logs",
         "startup-crash.log");
     private static readonly string CrashLogFallbackPath = Path.Combine(
