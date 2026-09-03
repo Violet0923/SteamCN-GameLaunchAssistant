@@ -1,4 +1,4 @@
-# WutheringWavesSteamHelper
+# SteamCN-GameLaunchAssistant
 
 鸣潮 Steam 助手 - 一款实现套壳游玩任何在steam上线的国内游戏，同时享受steam时长记录和截图等功能，电脑本地只需下载一份国服文件即可。
 此处说明不一定会及时更新，详细文档请访问[鸣潮Steam助手帮助文档](https://www.iryougi.com/index.php/wutheringwavessteamhelper/)
