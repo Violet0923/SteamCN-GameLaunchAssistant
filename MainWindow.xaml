@@ -91,7 +91,7 @@
 
             <!-- 底部设置入口 -->
             <NavigationView.FooterMenuItems>
-                <NavigationViewItem Content="外观设置" Tag="AppearanceSettings">
+                <NavigationViewItem Content="外观" Tag="AppearanceSettings">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE790;"/>
                     </NavigationViewItem.Icon>
