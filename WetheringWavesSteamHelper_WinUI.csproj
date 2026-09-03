@@ -13,6 +13,9 @@
     <WindowsAppSdkDeploymentManagerInitialize>false</WindowsAppSdkDeploymentManagerInitialize>
     <Nullable>enable</Nullable>
     <Version>2.4.0</Version>
+    <Product>Steam国服游戏启动助手</Product>
+    <AssemblyTitle>Steam国服游戏启动助手</AssemblyTitle>
+    <Description>在 Steam 库中添加和管理国服游戏的启动配置</Description>
     <Company>KAMITSUBAKI STUDIO</Company>
 	<ApplicationIcon>Assets\Icons\WutheringWavesSteamHelper.ico</ApplicationIcon>  
     <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
@@ -21,6 +24,9 @@
   <ItemGroup>
     <Compile Remove="Output\**" />
     <Compile Remove="Tests\**" />
+    <Page Remove="Tests\**" />
+    <ApplicationDefinition Remove="Tests\**" />
+    <PRIResource Remove="Tests\**" />
     <EmbeddedResource Remove="Tests\**" />
     <None Remove="Tests\**" />
     <EmbeddedResource Remove="Output\**" />

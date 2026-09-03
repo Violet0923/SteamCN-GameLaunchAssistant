@@ -1,19 +1,21 @@
-# WutheringWavesSteamHelper
+# Steam国服游戏启动助手
 
-鸣潮 Steam 助手 - 用于在 Steam 库中添加鸣潮游戏，实现 Steam 启动器管理。
+用于在 Steam 库中添加和管理国服游戏的启动配置。
 此处说明不一定会及时更新，详细文档请访问[鸣潮Steam助手帮助文档](https://www.iryougi.com/index.php/wutheringwavessteamhelper/)
 
 ## 简介
 
-WutheringWavesSteamHelper 是一个通过生成必要的配置文件，让玩家可以通过 Steam 客户端启动和管理国服鸣潮。
+Steam国服游戏启动助手通过生成必要的配置文件，让玩家可以通过 Steam 客户端启动和管理已添加的国服游戏。
 
 自 v2.2.0 起，应用同时支持「自定义 Manifest」页面，允许用户为任意 Steam 游戏自定义 AppID / DepotID / BuildID / Manifest 等字段，生成对应 ACF 配置并复制启动命令。
 
 ## 主要功能
 
-- **鸣潮专属页面**：一键生成鸣潮 ACF 配置 / 复制国服客户端启动命令 / 打开官方启动器
+- **游戏导航**：不再提供默认鸣潮入口；启动时恢复上次选择的自定义游戏，无有效记录时打开第一个游戏。尚未添加游戏或删除最后一个游戏后，显示「添加游戏」按钮；已添加的游戏可在侧边栏拖动排序，顺序自动保存。
 - **自定义 Manifest 页（v2.2.0 新增，v2.3.0 增强）**：自由填写任意游戏的 AppID/DepotID/BuildID/Manifest，生成 `appmanifest_<AppID>.acf` 与占位可执行文件；支持多预设管理（新建 / 另存为 / 重命名 / 删除）
 - **Steam 全局配置**：Steam 安装路径、SteamLibrary 路径、SteamID 在「设置」中统一管理，全应用共享
+
+拖动游戏时，横线标出插入位置；松开鼠标后保存顺序，按 Esc 或拖出列表可取消。可拖到「已添加的游戏」标题置顶，或拖到「添加游戏」处置底。
 
 ### 根据 AppID 自动填充
 
@@ -31,9 +33,7 @@ WutheringWavesSteamHelper 是一个通过生成必要的配置文件，让玩家
 - .NET 8.0 运行时
 - Visual Studio Community 2022, 17.14.29 (March 2026)
 - 已安装 Steam 客户端
-- Steam游戏库内已入库鸣潮游戏
-
-test test
+- Steam 游戏库内已入库对应游戏
 
 ## 技术说明
 

@@ -21,6 +21,7 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        InitializeGameReordering();
 
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(TopBarGrid);
@@ -36,11 +37,8 @@ public sealed partial class MainWindow : Window
         _customManifestService.NavigationChanged += OnCustomNavigationChanged;
         Closed += (_, _) => _customManifestService.NavigationChanged -= OnCustomNavigationChanged;
 
-        RefreshCustomNavigation();
-
-        // 默认选中第一项（鸣潮）
-        NavView.SelectedItem = NavView.MenuItems[0];
-        ContentFrame.Navigate(typeof(Views.Pages.WutheringWavesPage));
+        // 恢复上次使用的自定义游戏；没有游戏时展示添加入口。
+        RefreshCustomNavigation(_customManifestService.GetInitialSidebarId());
     }
 
     // ── 更新通知处理 ──────────────────────────────────────────────────────────
@@ -150,7 +148,7 @@ public sealed partial class MainWindow : Window
 
     private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
-        if (_refreshingCustomNavigation) return;
+        if (_refreshingCustomNavigation || _reorderSource != null) return;
         if (args.SelectedItem is not NavigationViewItem item) return;
 
         if (item.Tag is CustomNavigationTag customTag)
@@ -162,9 +160,6 @@ public sealed partial class MainWindow : Window
         var tag = item.Tag?.ToString();
         switch (tag)
         {
-            case "WutheringWaves":
-                ContentFrame.Navigate(typeof(Views.Pages.WutheringWavesPage));
-                break;
             case "Settings":
                 ContentFrame.Navigate(typeof(Views.Pages.SettingsPage));
                 break;
@@ -178,6 +173,12 @@ public sealed partial class MainWindow : Window
 
     private void RefreshCustomNavigation(string? preferredId = null)
     {
+        CancelGameReordering();
+        var selectionId = preferredId ?? ((NavView.SelectedItem as NavigationViewItem)?.Tag as CustomNavigationTag)?.Id;
+        var games = _customManifestService.GetSidebarItems();
+        if (games.Count > 0 && !string.IsNullOrWhiteSpace(preferredId)
+            && _customManifestService.GetById(preferredId) == null)
+            preferredId = games[0].Id;
         _refreshingCustomNavigation = true;
         try
         {
@@ -189,7 +190,8 @@ public sealed partial class MainWindow : Window
                 NavView.MenuItems.Remove(item);
 
             var insertIndex = NavView.MenuItems.IndexOf(AddCustomNavItem);
-            foreach (var preset in _customManifestService.GetSidebarItems())
+            CustomGamesHeader.Visibility = games.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
+            foreach (var preset in games)
             {
                 var item = new NavigationViewItem
                 {
@@ -197,18 +199,20 @@ public sealed partial class MainWindow : Window
                     Tag = new CustomNavigationTag(preset.Id),
                     Icon = new FontIcon { Glyph = "\uE7FC" }
                 };
-                ToolTipService.SetToolTip(item, preset.Name);
+                ToolTipService.SetToolTip(item, $"{preset.Name}（可拖动调整顺序）");
                 NavView.MenuItems.Insert(insertIndex++, item);
             }
 
-            if (!string.IsNullOrWhiteSpace(preferredId))
+            if (games.Count == 0)
+                NavView.SelectedItem = null;
+            else if (!string.IsNullOrWhiteSpace(selectionId))
             {
                 // 旧版内置预设仍可通过页面下拉框访问，但不再有固定的侧边栏入口。
                 // 找不到对应导航项时清除选中态，避免错误高亮“外观设置”等其他页面。
                 NavView.SelectedItem = NavView.MenuItems
                     .OfType<NavigationViewItem>()
                     .FirstOrDefault(item => item.Tag is CustomNavigationTag custom
-                        && string.Equals(custom.Id, preferredId, StringComparison.OrdinalIgnoreCase));
+                        && string.Equals(custom.Id, selectionId, StringComparison.OrdinalIgnoreCase));
             }
         }
         finally
@@ -216,8 +220,18 @@ public sealed partial class MainWindow : Window
             _refreshingCustomNavigation = false;
         }
 
-        if (!string.IsNullOrWhiteSpace(preferredId))
+        if (games.Count == 0)
+            ShowEmptyGameLibrary();
+        else if (!string.IsNullOrWhiteSpace(preferredId))
             NavigateToCustom(preferredId);
+    }
+
+    private void ShowEmptyGameLibrary()
+    {
+        if (ContentFrame.Content is Views.Pages.EmptyGameLibraryPage) return;
+        ContentFrame.Navigate(typeof(Views.Pages.EmptyGameLibraryPage));
+        if (ContentFrame.Content is Views.Pages.EmptyGameLibraryPage page)
+            page.AddGameRequested += async (_, _) => await AddGameAsync();
     }
 
     private void NavigateToCustom(string id)
@@ -235,16 +249,22 @@ public sealed partial class MainWindow : Window
         _customManifestService.Select(id);
     }
 
-    private async void AddCustomNavItem_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
+    private async void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
+    {
+        if (args.InvokedItemContainer == AddCustomNavItem)
+            await AddGameAsync();
+    }
+
+    private async Task AddGameAsync()
     {
         if (_addingCustomManifest) return;
         _addingCustomManifest = true;
         try
         {
-            var textBox = new TextBox { PlaceholderText = "请输入侧边栏名称", MinWidth = 320 };
+            var textBox = new TextBox { PlaceholderText = "请输入游戏名称", MinWidth = 320 };
             var dialog = new ContentDialog
             {
-                Title = "添加自定义",
+                Title = "添加游戏",
                 Content = textBox,
                 PrimaryButtonText = "添加",
                 CloseButtonText = "取消",
@@ -257,12 +277,12 @@ public sealed partial class MainWindow : Window
             var name = textBox.Text.Trim();
             if (string.IsNullOrWhiteSpace(name))
             {
-                await ShowInfoAsync("自定义名称不能为空。");
+                await ShowInfoAsync("游戏名称不能为空。");
                 return;
             }
             if (_customManifestService.NameExists(name))
             {
-                await ShowInfoAsync($"已存在同名自定义「{name}」，请换一个名称。");
+                await ShowInfoAsync($"已存在同名游戏「{name}」，请换一个名称。");
                 return;
             }
 

@@ -6,7 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="鸣潮 Steam 助手">
+    Title="Steam国服游戏启动助手">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -63,21 +63,16 @@
                         OpenPaneLength="210"
                         CompactPaneLength="48"
                         IsPaneOpen="True"
-                        SelectionChanged="NavView_SelectionChanged">
+                        SelectionChanged="NavView_SelectionChanged"
+                        ItemInvoked="NavView_ItemInvoked">
 
             <NavigationView.MenuItems>
-                <NavigationViewItem Content="鸣潮" Tag="WutheringWaves">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE7FC;"/>
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItemHeader Content="已添加的自定义"/>
+                <NavigationViewItemHeader x:Name="CustomGamesHeader" Content="已添加的游戏"/>
                 <!-- 自定义页面导航项由 MainWindow 从设置动态插入到此按钮之前 -->
                 <NavigationViewItem x:Name="AddCustomNavItem"
-                                    Content="添加自定义"
+                                    Content="添加游戏"
                                     Tag="AddCustomManifest"
-                                    SelectsOnInvoked="False"
-                                    Tapped="AddCustomNavItem_Tapped">
+                                    SelectsOnInvoked="False">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE710;"/>
                     </NavigationViewItem.Icon>
@@ -105,6 +100,11 @@
 
             <Frame x:Name="ContentFrame"/>
         </NavigationView>
+
+        <Border x:Name="GameReorderIndicator" Grid.Row="2" Height="3"
+                HorizontalAlignment="Left" VerticalAlignment="Top"
+                Background="{ThemeResource AccentFillColorDefaultBrush}"
+                CornerRadius="1.5" IsHitTestVisible="False" Visibility="Collapsed"/>
 
         <!-- 强制更新全屏遮罩（锁定整个内容区，不影响标题栏） -->
         <Grid x:Name="forceUpdateOverlay"
