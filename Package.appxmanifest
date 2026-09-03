@@ -15,7 +15,7 @@
   <mp:PhoneIdentity PhoneProductId="4eb01c3e-5594-49fc-a6f7-967601a9f602" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>鸣潮 Steam 助手</DisplayName>
+    <DisplayName>Steam国服游戏启动助手</DisplayName>
     <PublisherDisplayName>KAMITSUBAKI STUDIO</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -34,8 +34,8 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="鸣潮 Steam 助手"
-        Description="鸣潮 Steam 助手 - 用于在 Steam 库中添加鸣潮游戏"
+        DisplayName="Steam国服游戏启动助手"
+        Description="在 Steam 库中添加和管理国服游戏的启动配置"
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png">

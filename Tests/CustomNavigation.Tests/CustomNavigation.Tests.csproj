@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Models/AppSettings.cs" Link="Models/AppSettings.cs" />
+    <Compile Include="../../Services/SettingsService.cs" Link="Services/SettingsService.cs" />
+    <Compile Include="../../Services/CustomManifestService.cs" Link="Services/CustomManifestService.cs" />
+  </ItemGroup>
+</Project>

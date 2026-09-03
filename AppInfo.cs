@@ -16,10 +16,10 @@ public static class AppInfo
     public const string FullVersion = $"{Version} ({Channel})";
 
     /// <summary>窗口标题</summary>
-    public const string WindowTitle = $"鸣潮 Steam 助手 {FullVersion}";
+    public const string WindowTitle = $"{AppName} {FullVersion}";
 
     /// <summary>应用名称</summary>
-    public const string AppName = "鸣潮 Steam 助手";
+    public const string AppName = "Steam国服游戏启动助手";
 
     /// <summary>版权信息</summary>
     public const string Copyright = "© 2026 KAMITSUBAKI METAVERSE R&D DIV";

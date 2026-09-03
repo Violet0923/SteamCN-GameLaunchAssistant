@@ -61,7 +61,7 @@
                 <StackPanel Spacing="12">
                     <TextBlock Text="BuildID 和 Manifest" FontSize="16" FontWeight="SemiBold"/>
                     <Button x:Name="btnFetchSteamDB"
-                            Content="从 SteamDB 自动获取 BuildID 和 Manifest"
+                            Content="自动获取 BuildID 和 Manifest"
                             Click="FetchFromSteamDB_Click"
                             HorizontalAlignment="Stretch"/>
                     <Grid ColumnSpacing="12">

@@ -7,6 +7,12 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <DataTemplate x:Key="GameInfoCandidateTemplate">
+            <TextBlock Text="{Binding DisplayText}" TextWrapping="Wrap" MaxWidth="760"/>
+        </DataTemplate>
+    </Page.Resources>
+
     <ScrollViewer Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}">
         <StackPanel Padding="24" Spacing="16" MaxWidth="1000">
 
@@ -57,7 +63,9 @@
 
                         <StackPanel Grid.Row="0" Grid.Column="0" Spacing="6">
                             <TextBlock Text="AppID" FontWeight="Medium"/>
-                            <TextBox x:Name="txtAppId" PlaceholderText="例如 3513350"/>
+                            <TextBox x:Name="txtAppId" PlaceholderText="填写 AppID 后自动获取"/>
+                            <Button x:Name="btnFetchGameInfo" Content="自动获取游戏信息"
+                                    Click="FetchGameInfo_Click" HorizontalAlignment="Stretch"/>
                         </StackPanel>
                         <StackPanel Grid.Row="0" Grid.Column="1" Spacing="6">
                             <TextBlock Text="DepotID" FontWeight="Medium"/>
@@ -84,6 +92,16 @@
                             </ComboBox>
                         </StackPanel>
                     </Grid>
+
+                    <InfoBar x:Name="gameInfoStatus" IsOpen="False" IsClosable="False"/>
+                    <ComboBox x:Name="cmbDepotCandidates" Header="选择 Depot"
+                              PlaceholderText="请选择 Depot，也可手动填写 DepotID"
+                              ItemTemplate="{StaticResource GameInfoCandidateTemplate}" HorizontalAlignment="Stretch"
+                              Visibility="Collapsed" SelectionChanged="DepotCandidate_SelectionChanged"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <HyperlinkButton x:Name="lnkGameConfig" Content="SteamDB 启动配置" IsEnabled="False"/>
+                        <HyperlinkButton x:Name="lnkGameDepots" Content="SteamDB Depot 信息" IsEnabled="False"/>
+                    </StackPanel>
 
                     <TextBlock TextWrapping="Wrap"
                                FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
@@ -138,6 +156,10 @@
                         <TextBlock Text="Steam 占位文件名" FontWeight="Medium"/>
                         <TextBox x:Name="txtExecutableFileName"
                                  PlaceholderText="留空则用 &lt;显示名&gt;.exe"/>
+                        <ComboBox x:Name="cmbExecutableCandidates" Header="选择启动文件"
+                                  PlaceholderText="多个启动文件，请选择与 Steam 启动项对应的路径"
+                                  ItemTemplate="{StaticResource GameInfoCandidateTemplate}" HorizontalAlignment="Stretch"
+                                  Visibility="Collapsed" SelectionChanged="ExecutableCandidate_SelectionChanged"/>
                     </StackPanel>
                     <TextBlock Text="提示：该文件名须等于 Steam appinfo 登记的可执行文件名，否则 Steam 无法启动；它与上方的真实 EXE 路径是两个不同概念。"
                                TextWrapping="Wrap"
@@ -151,10 +173,8 @@
                     CornerRadius="8" Padding="16">
                 <StackPanel Spacing="12">
                     <TextBlock Text="BuildID 和 Manifest" FontSize="16" FontWeight="SemiBold"/>
-                    <Button x:Name="btnFetchSteamDB"
-                            Content="从 SteamDB 自动获取 BuildID 和 Manifest"
-                            Click="FetchFromSteamDB_Click"
-                            HorizontalAlignment="Stretch"/>
+                    <TextBlock Text="填写 AppID 后，点击上方「自动获取游戏信息」即可一并获取公开分支的 BuildID 和 Manifest。"
+                               TextWrapping="Wrap" FontSize="12"/>
                     <Grid ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>

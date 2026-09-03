@@ -1,5 +1,5 @@
 using Microsoft.Win32;
-using System.Text.Json;
+using WetheringWavesSteamHelper_WinUI.Models;
 
 namespace WetheringWavesSteamHelper_WinUI.Services;
 
@@ -28,6 +28,13 @@ public sealed record PlaceholderResult(
 
 public class SteamService
 {
+    private readonly ISteamAppInfoService _appInfoService;
+
+    public SteamService(ISteamAppInfoService? appInfoService = null)
+    {
+        _appInfoService = appInfoService ?? new SteamAppInfoService();
+    }
+
     private const string SteamRegistryKey = @"SOFTWARE\WOW6432Node\Valve\Steam";
     private const string SteamRegistryKey32 = @"SOFTWARE\Valve\Steam";
 
@@ -108,68 +115,24 @@ public class SteamService
         return paths;
     }
 
-    /// <summary>
-    /// 从 steamcmd.net 公开 API 获取指定 AppID / DepotID 的 buildid 与 manifest。
-    /// </summary>
+    /// <summary>Compatibility wrapper for callers that only need one depot and the public branch.</summary>
     public async Task<(string buildId, string manifest)?> FetchSteamDbInfoAsync(string appId, string depotId)
     {
-        if (string.IsNullOrWhiteSpace(appId) || string.IsNullOrWhiteSpace(depotId))
-            return null;
-
         try
         {
-            using var httpClient = new HttpClient();
-            httpClient.Timeout = TimeSpan.FromSeconds(15);
-            httpClient.DefaultRequestHeaders.Add("User-Agent", "WutheringWavesSteamHelper/2.2");
-
-            var url = $"https://api.steamcmd.net/v1/info/{appId}";
-            var response = await httpClient.GetStringAsync(url);
-
-            using var doc = JsonDocument.Parse(response);
-            var root = doc.RootElement;
-
-            if (root.TryGetProperty("status", out var status) && status.GetString() == "success"
-                && root.TryGetProperty("data", out var data))
-            {
-                string? buildId = null;
-                string? manifest = null;
-
-                if (data.TryGetProperty(appId, out var appData))
-                {
-                    if (appData.TryGetProperty("depots", out var depots)
-                        && depots.TryGetProperty("branches", out var branches)
-                        && branches.TryGetProperty("public", out var publicBranch)
-                        && publicBranch.TryGetProperty("buildid", out var buildIdElem))
-                    {
-                        buildId = buildIdElem.GetString();
-                    }
-
-                    if (appData.TryGetProperty("depots", out var depots2)
-                        && depots2.TryGetProperty(depotId, out var depot)
-                        && depot.TryGetProperty("manifests", out var manifests)
-                        && manifests.TryGetProperty("public", out var publicManifest))
-                    {
-                        if (publicManifest.ValueKind == JsonValueKind.String)
-                        {
-                            manifest = publicManifest.GetString();
-                        }
-                        else if (publicManifest.TryGetProperty("gid", out var gid))
-                        {
-                            manifest = gid.GetString();
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(buildId) && !string.IsNullOrEmpty(manifest))
-                        return (buildId, manifest);
-                }
-            }
+            var app = await _appInfoService.GetAppInfoAsync(appId);
+            var branch = new SteamAppSelectionOptions().Branch;
+            var depot = app.Depots.FirstOrDefault(d => d.Id == depotId.Trim());
+            if (app.BranchBuildIds.TryGetValue(branch, out var build)
+                && depot != null && depot.Manifests.TryGetValue(branch, out var manifest)
+                && !string.IsNullOrWhiteSpace(build) && !string.IsNullOrWhiteSpace(manifest))
+                return (build, manifest);
         }
-        catch { }
-
+        catch (SteamAppInfoException) { }
         return null;
     }
 
-    /// <summary>鸣潮页便捷包装：使用固定 AppID/DepotID 调用 SteamDB API。</summary>
+    /// <summary>鸣潮页便捷包装，沿用原有调用签名。</summary>
     public Task<(string buildId, string manifest)?> FetchSteamDbInfoAsync()
         => FetchSteamDbInfoAsync(WutheringWavesAppId.ToString(), WutheringWavesDepotId.ToString());
 
@@ -302,6 +265,11 @@ public class SteamService
         ArgumentException.ThrowIfNullOrWhiteSpace(steamLibraryPath);
         ArgumentException.ThrowIfNullOrWhiteSpace(installDir);
         ArgumentException.ThrowIfNullOrWhiteSpace(exeFileName);
+
+        if (!SteamPathValidator.TryValidate(installDir, out var directoryError))
+            throw new ArgumentException(directoryError, nameof(installDir));
+        if (!SteamPathValidator.TryValidate(exeFileName, out var executableError, requireExe: true))
+            throw new ArgumentException(executableError, nameof(exeFileName));
 
         var gameDir = Path.Combine(steamLibraryPath, "steamapps", "common", installDir);
         // exeFileName 可能含子目录分隔符（例如部分游戏的 Steam Executable 登记为 "Sub/Launcher.exe"）

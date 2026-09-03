@@ -79,7 +79,7 @@ public class AppSettings
             }
         }
 
-        // 固定的「自定义」页不显示在动态列表，而是放在左侧底部的设置上方。
+        // 保留旧版内置「自定义」预设，不显示在动态侧边栏，仍可从页面预设下拉框访问。
         // 优先接管旧版的「默认」预设，以保留其中的全部数据。
         var builtIns = CustomManifestPresets.Where(p => p.IsBuiltIn).ToList();
         CustomManifestPreset builtIn;

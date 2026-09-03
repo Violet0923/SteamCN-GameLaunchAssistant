@@ -11,7 +11,7 @@ public sealed class CustomManifestService
 
     public static CustomManifestService Instance { get; } = new(new SettingsService());
 
-    /// <summary>仅在新建、重命名或删除影响导航结构时触发。参数是建议选中的配置 Id。</summary>
+    /// <summary>导航结构变化时触发。参数是建议打开的配置 Id；null 表示只刷新列表并保留当前页面。</summary>
     public event Action<string?>? NavigationChanged;
 
     internal CustomManifestService(SettingsService settingsService)
@@ -27,6 +27,15 @@ public sealed class CustomManifestService
 
     public IReadOnlyList<CustomManifestPreset> GetSidebarItems() =>
         GetAll().Where(p => !p.IsBuiltIn).ToList();
+
+    /// <summary>旧版内置预设不计为已添加游戏；启动时优先恢复有效的自定义游戏。</summary>
+    public string? GetInitialSidebarId()
+    {
+        var settings = LoadMigratedSettings();
+        var games = settings.CustomManifestPresets.Where(p => !p.IsBuiltIn).ToList();
+        return (games.FirstOrDefault(p => string.Equals(p.Id, settings.CurrentCustomManifestId,
+            StringComparison.OrdinalIgnoreCase)) ?? games.FirstOrDefault())?.Id;
+    }
 
     public string GetBuiltInId() =>
         GetAll().First(p => p.IsBuiltIn).Id;
@@ -73,6 +82,44 @@ public sealed class CustomManifestService
         if (!saved) return null;
         NavigationChanged?.Invoke(created.Id);
         return created;
+    }
+
+    /// <summary>
+    /// 按给定的完整 Id 列表调整侧边栏游戏顺序。列表必须与当前非内置游戏完全一致，
+    /// 防止过期的拖放操作覆盖刚发生的新建或删除。
+    /// </summary>
+    public bool ReorderSidebarItems(IReadOnlyList<string> orderedIds)
+    {
+        ArgumentNullException.ThrowIfNull(orderedIds);
+        var requested = orderedIds.ToList();
+        var accepted = false;
+        var changed = false;
+        var saved = _settingsService.Update(settings =>
+        {
+            settings.EnsureCustomManifestPresets();
+            var current = settings.CustomManifestPresets.Where(p => !p.IsBuiltIn).ToList();
+            if (requested.Count != current.Count
+                || requested.Distinct(StringComparer.OrdinalIgnoreCase).Count() != requested.Count
+                || current.Any(p => !requested.Contains(p.Id, StringComparer.OrdinalIgnoreCase)))
+                return;
+
+            accepted = true;
+            if (current.Select(p => p.Id).SequenceEqual(requested, StringComparer.OrdinalIgnoreCase))
+                return;
+
+            var byId = current.ToDictionary(p => p.Id, StringComparer.OrdinalIgnoreCase);
+            var queue = new Queue<CustomManifestPreset>(requested.Select(id => byId[id]));
+            for (var i = 0; i < settings.CustomManifestPresets.Count; i++)
+            {
+                if (!settings.CustomManifestPresets[i].IsBuiltIn)
+                    settings.CustomManifestPresets[i] = queue.Dequeue();
+            }
+            changed = true;
+        });
+
+        if (saved && accepted && changed)
+            NavigationChanged?.Invoke(null);
+        return saved && accepted;
     }
 
     public bool Update(CustomManifestPreset preset)
@@ -133,7 +180,10 @@ public sealed class CustomManifestService
             if (index < 0 || settings.CustomManifestPresets[index].IsBuiltIn) return;
 
             settings.CustomManifestPresets.RemoveAt(index);
-            var next = settings.CustomManifestPresets[Math.Min(index, settings.CustomManifestPresets.Count - 1)];
+            // 优先选中相邻的用户游戏；删到零个游戏时只保留兼容预设，由主窗口展示空列表页。
+            var next = settings.CustomManifestPresets.Skip(index).FirstOrDefault(p => !p.IsBuiltIn)
+                ?? settings.CustomManifestPresets.LastOrDefault(p => !p.IsBuiltIn)
+                ?? settings.CustomManifestPresets.First(p => p.IsBuiltIn);
             nextId = next.Id;
             SetCurrent(settings, next);
             deleted = true;

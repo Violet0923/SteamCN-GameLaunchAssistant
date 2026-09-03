@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="WetheringWavesSteamHelper_WinUI.Views.Pages.EmptyGameLibraryPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Padding="24" Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="16">
+            <FontIcon Glyph="&#xE7FC;" FontSize="48"
+                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            <TextBlock Text="还没有添加游戏" FontSize="24" FontWeight="SemiBold"
+                       HorizontalAlignment="Center"/>
+            <TextBlock Text="添加游戏后，即可配置 Steam 启动方式。" TextWrapping="Wrap"
+                       TextAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            <Button Content="添加游戏" Style="{StaticResource AccentButtonStyle}"
+                    HorizontalAlignment="Center" Padding="24,10" Click="AddGame_Click"/>
+        </StackPanel>
+    </Grid>
+</Page>

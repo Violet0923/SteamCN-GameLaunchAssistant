@@ -32,6 +32,7 @@ public sealed partial class CustomManifestPage : Page
     public CustomManifestPage()
     {
         InitializeComponent();
+        InitializeGameInfoLookup();
         Loaded += OnLoaded;
         Unloaded += OnUnloaded;
     }
@@ -48,6 +49,7 @@ public sealed partial class CustomManifestPage : Page
 
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
+        ResetGameInfoLookup();
         PersistCurrentPreset(showFailureLog: false);
         if (_logScrollHandler != null)
             _logService.Logs.CollectionChanged -= _logScrollHandler;
@@ -74,34 +76,45 @@ public sealed partial class CustomManifestPage : Page
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
     {
+        ResetGameInfoLookup();
         PersistCurrentPreset(showFailureLog: false);
         base.OnNavigatedFrom(e);
     }
 
     private void LoadPreset(CustomManifestPreset preset)
     {
-        btnRenamePreset.IsEnabled = !preset.IsBuiltIn;
-        btnDeletePreset.IsEnabled = !preset.IsBuiltIn;
-        txtAppId.Text = preset.AppId;
-        txtDepotId.Text = preset.DepotId;
-        txtDisplayName.Text = preset.GameDisplayName;
-        txtInstallDir.Text = preset.InstallDir;
-        txtClientExePath.Text = preset.ClientExePath;
-        txtLauncherExePath.Text = preset.LauncherExePath;
-        txtExecutableFileName.Text = preset.ExecutableFileName;
-        txtBuildId.Text = preset.BuildId;
-        txtManifest.Text = preset.Manifest;
-
-        var langTag = string.IsNullOrEmpty(preset.Language) ? "schinese" : preset.Language;
-        foreach (var item in cmbLanguageCode.Items.OfType<ComboBoxItem>())
+        ResetGameInfoLookup();
+        _applyingGameInfo = true;
+        try
         {
-            if (item.Tag is string tag && tag == langTag)
+            btnRenamePreset.IsEnabled = !preset.IsBuiltIn;
+            btnDeletePreset.IsEnabled = !preset.IsBuiltIn;
+            txtAppId.Text = preset.AppId;
+            txtDepotId.Text = preset.DepotId;
+            txtDisplayName.Text = preset.GameDisplayName;
+            txtInstallDir.Text = preset.InstallDir;
+            txtClientExePath.Text = preset.ClientExePath;
+            txtLauncherExePath.Text = preset.LauncherExePath;
+            txtExecutableFileName.Text = preset.ExecutableFileName;
+            txtBuildId.Text = preset.BuildId;
+            txtManifest.Text = preset.Manifest;
+
+            var langTag = string.IsNullOrEmpty(preset.Language) ? "schinese" : preset.Language;
+            foreach (var item in cmbLanguageCode.Items.OfType<ComboBoxItem>())
             {
-                cmbLanguageCode.SelectedItem = item;
-                return;
+                if (item.Tag is string tag && tag == langTag)
+                {
+                    cmbLanguageCode.SelectedItem = item;
+                    return;
+                }
             }
+            cmbLanguageCode.SelectedIndex = 0;
         }
-        cmbLanguageCode.SelectedIndex = 0;
+        finally
+        {
+            EndGameInfoUpdate();
+            UpdateGameInfoLinks();
+        }
     }
 
     private void UpdateGlobalConfigInfoBar()
@@ -343,56 +356,6 @@ public sealed partial class CustomManifestPage : Page
         return await PickFileSafelyAsync(picker, context);
     }
 
-    // ── SteamDB 获取（基于用户输入的 AppID / DepotID） ────────────────────────
-
-    private async void FetchFromSteamDB_Click(object sender, RoutedEventArgs e)
-    {
-        var appId = txtAppId.Text.Trim();
-        var depotId = txtDepotId.Text.Trim();
-
-        if (string.IsNullOrEmpty(appId) || string.IsNullOrEmpty(depotId))
-        {
-            await ShowInfoAsync("请先填写 AppID 和 DepotID。");
-            return;
-        }
-        if (!long.TryParse(appId, out _) || !long.TryParse(depotId, out _))
-        {
-            await ShowInfoAsync("AppID 和 DepotID 必须为数字。");
-            return;
-        }
-
-        btnFetchSteamDB.IsEnabled = false;
-        var originalContent = btnFetchSteamDB.Content;
-        btnFetchSteamDB.Content = "正在获取...";
-
-        _logService.AddLog($"[自定义页] 正在从 SteamDB 获取 AppID={appId} DepotID={depotId} 的 BuildID 和 Manifest...");
-
-        try
-        {
-            var result = await _steamService.FetchSteamDbInfoAsync(appId, depotId);
-            if (result.HasValue)
-            {
-                txtBuildId.Text = result.Value.buildId;
-                txtManifest.Text = result.Value.manifest;
-                _logService.AddLog($"[自定义页] 获取成功 - BuildID: {result.Value.buildId}, Manifest: {result.Value.manifest}");
-            }
-            else
-            {
-                _logService.AddLog("[自定义页] 获取失败，请检查 AppID/DepotID 或网络连接");
-                await ShowInfoAsync($"无法从 SteamDB 获取信息。\n\n请检查 AppID/DepotID 是否正确，或访问 https://steamdb.info/app/{appId}/depots/ 手动查询后填写。");
-            }
-        }
-        catch (Exception ex)
-        {
-            _logService.AddLog($"[自定义页] 获取异常：{ex.Message}");
-        }
-        finally
-        {
-            btnFetchSteamDB.IsEnabled = true;
-            btnFetchSteamDB.Content = originalContent;
-        }
-    }
-
     // ── 生成 ACF ──────────────────────────────────────────────────────────────
 
     private async void Generate_Click(object sender, RoutedEventArgs e)
@@ -618,34 +581,7 @@ public sealed partial class CustomManifestPage : Page
     /// （例如 "Sub/Launcher.exe"），因此允许路径分隔符，但按分段校验以阻止绝对路径和目录穿越（issue #29）。
     /// </summary>
     private static bool TryValidatePlaceholderExeName(string exeFileName, out string error)
-    {
-        error = string.Empty;
-
-        if (Path.IsPathRooted(exeFileName))
-        {
-            error = "不能是绝对路径";
-            return false;
-        }
-
-        var segments = exeFileName.Split('/', '\\');
-        var invalidChars = Path.GetInvalidFileNameChars();
-
-        foreach (var segment in segments)
-        {
-            if (string.IsNullOrEmpty(segment) || segment is "." or "..")
-            {
-                error = $"路径片段不合法：\"{segment}\"";
-                return false;
-            }
-            if (segment.IndexOfAny(invalidChars) >= 0)
-            {
-                error = $"包含非法字符：\"{segment}\"";
-                return false;
-            }
-        }
-
-        return true;
-    }
+        => SteamPathValidator.TryValidate(exeFileName, out error, requireExe: true);
 
     private bool ValidateForGenerate()
     {
@@ -663,9 +599,9 @@ public sealed partial class CustomManifestPage : Page
             _logService.AddLog("[自定义页] 错误: 请填写 AppID");
             return false;
         }
-        if (!long.TryParse(txtAppId.Text.Trim(), out _))
+        if (!SteamAppInfoService.TryNormalizeAppId(txtAppId.Text, out _))
         {
-            _logService.AddLog("[自定义页] 错误: AppID 必须为数字");
+            _logService.AddLog("[自定义页] 错误: AppID 必须为有效的正整数");
             return false;
         }
         if (string.IsNullOrWhiteSpace(txtDepotId.Text))
@@ -673,9 +609,9 @@ public sealed partial class CustomManifestPage : Page
             _logService.AddLog("[自定义页] 错误: 请填写 DepotID");
             return false;
         }
-        if (!long.TryParse(txtDepotId.Text.Trim(), out _))
+        if (!SteamAppInfoService.TryNormalizeAppId(txtDepotId.Text, out _))
         {
-            _logService.AddLog("[自定义页] 错误: DepotID 必须为数字");
+            _logService.AddLog("[自定义页] 错误: DepotID 必须为有效的正整数");
             return false;
         }
         if (string.IsNullOrWhiteSpace(txtDisplayName.Text))
@@ -686,6 +622,16 @@ public sealed partial class CustomManifestPage : Page
         if (string.IsNullOrWhiteSpace(txtInstallDir.Text))
         {
             _logService.AddLog("[自定义页] 错误: 请填写安装目录名");
+            return false;
+        }
+        if (!SteamPathValidator.TryValidate(txtInstallDir.Text.Trim(), out var directoryError))
+        {
+            _logService.AddLog($"[自定义页] 错误: 安装目录名不合法：{directoryError}");
+            return false;
+        }
+        if (txtDisplayName.Text.Any(c => c < 32 || c is '"' or '\\'))
+        {
+            _logService.AddLog("[自定义页] 错误: 显示名称不能包含引号、反斜杠或控制字符");
             return false;
         }
         if (string.IsNullOrWhiteSpace(txtBuildId.Text))
