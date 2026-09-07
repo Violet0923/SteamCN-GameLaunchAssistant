@@ -32,6 +32,19 @@ New-Item -ItemType Directory -Path $publishDir -Force | Out-Null
     -p:WindowsAppSDKSelfContained=true -p:PublishSingleFile=false -p:DebugType=None -p:DebugSymbols=false `
     -p:SatelliteResourceLanguages='zh-CN%3Ben-US' --output $publishDir
 if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed: $LASTEXITCODE" }
+# SatelliteResourceLanguages only filters managed satellites. Windows App SDK also
+# copies native MUI locale directories; restrict those to the two shipped languages.
+$resolvedPublish = [IO.Path]::GetFullPath($publishDir)
+foreach ($localeDir in Get-ChildItem -LiteralPath $resolvedPublish -Directory) {
+    if ($localeDir.Name -match '^[a-z]{2,3}-(?:[a-z]{2,8})(?:-[a-z]{2,8})?$' -and
+        $localeDir.Name -notin @('zh-CN', 'en-US')) {
+        $resolvedLocale = [IO.Path]::GetFullPath($localeDir.FullName)
+        if ([IO.Path]::GetDirectoryName($resolvedLocale) -ne $resolvedPublish) {
+            throw "Unexpected language directory: $resolvedLocale"
+        }
+        Remove-Item -LiteralPath $resolvedLocale -Recurse -Force
+    }
+}
 foreach ($required in @("$assemblyName.exe", "$assemblyName.dll", "$assemblyName.deps.json", "$assemblyName.runtimeconfig.json", "$assemblyName.pri", 'coreclr.dll', 'Microsoft.UI.Xaml.dll')) {
     if (-not (Test-Path -LiteralPath (Join-Path $publishDir $required))) { throw "Publish output missing: $required" }
 }

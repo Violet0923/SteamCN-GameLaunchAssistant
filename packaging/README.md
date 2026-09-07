@@ -13,7 +13,7 @@
 每次构建使用独立的 `Output/v<版本>-<随机标识>/` 目录，生成：
 
 - `publish/`：自包含 .NET 和 Windows App SDK 的 Windows x64 程序。
-- `SteamCN-GameLaunchAssistant-v<版本>-win-x64-setup.exe`：中英文安装包。
+- `SteamCN-GameLaunchAssistant-v<版本>-win-x64-setup.exe`：简体中文、英文安装包。
 - `SHA256SUMS.txt`：安装包校验值。
 
 脚本只构建本地产物；提交、打标签和上传 GitHub Release 单独进行。发布文件不包含 PDB 或日志，安装器包含完整发布目录以避免手写 DLL 清单漏项。

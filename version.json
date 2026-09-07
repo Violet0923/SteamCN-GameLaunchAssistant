@@ -1,8 +1,8 @@
 {
-  "version": "2.5.0",
-  "releaseDate": "2026-09-04",
-  "availableAfter": "2026-09-04T00:00:00+08:00",
-  "message": "新增 AppID 自动填充、多候选选择、空游戏列表与拖动排序；程序和安装包更名为 SteamCN-GameLaunchAssistant，兼容已有游戏配置。",
+  "version": "2.6.0",
+  "releaseDate": "2026-09-07",
+  "availableAfter": "2026-09-07T00:00:00+08:00",
+  "message": "新增背景导入裁切、图片库切换、界面透明度和侧栏宽度调节；窗口固定为 1440×810，安装器支持中英两种语言。",
   "downloadUrl": {
     "domestic": "https://github.com/Violet0923/SteamCN-GameLaunchAssistant/releases/latest",
     "global": "https://github.com/Violet0923/SteamCN-GameLaunchAssistant/releases/latest"
