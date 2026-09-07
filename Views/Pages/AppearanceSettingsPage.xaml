@@ -1,21 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Page
-    x:Class="SteamCNGameLaunchAssistant.Views.Pages.AppearanceSettingsPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-
-    <Grid Padding="24" Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-
-        <TextBlock Text="外观设置" FontSize="28" FontWeight="SemiBold"/>
-        <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="16">
-            <FontIcon Glyph="&#xE790;" FontSize="48"
-                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-            <TextBlock Text="敬请期待" FontSize="24" HorizontalAlignment="Center"
-                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+<Page x:Class="SteamCNGameLaunchAssistant.Views.Pages.AppearanceSettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer Background="{StaticResource AppearancePageBackground}">
+        <StackPanel Padding="24" Spacing="16">
+            <TextBlock Text="外观设置" FontSize="28" FontWeight="SemiBold"/>
+            <InfoBar x:Name="Status" IsOpen="False" IsClosable="True"/>
+            <Border Background="{StaticResource AppearanceCardBackground}" CornerRadius="8" Padding="20">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="界面透明度" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock x:Name="CardOpacityLabel" Text="内容卡片不透明度"/>
+                    <Slider x:Name="CardOpacity" Minimum="0" Maximum="100" StepFrequency="1"
+                            AutomationProperties.Name="内容卡片不透明度" ValueChanged="CardOpacityChanged"/>
+                    <TextBlock Text="调节各页面内容面板的底色。0% 完全透明，100% 不透明；文字、按钮和输入框保持清晰。设置对所有背景通用。"
+                               TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                </StackPanel>
+            </Border>
+            <Border Background="{StaticResource AppearanceCardBackground}" CornerRadius="8" Padding="20">
+                <StackPanel Spacing="12">
+                    <ToggleSwitch x:Name="BackgroundEnabled" Header="自定义背景" OnContent="已开启" OffContent="已关闭" Toggled="OptionsChanged"/>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button x:Name="ImportButton" Content="导入图片" Click="Import_Click" Style="{StaticResource AccentButtonStyle}"/>
+                        <Button Content="打开图片文件夹" Click="OpenFolder_Click"/>
+                        <Button x:Name="DeleteButton" Content="删除所选图片" Click="Delete_Click"/>
+                        <Button x:Name="RecropButton" Content="重新裁切" Click="Recrop_Click"/>
+                    </StackPanel>
+                    <TextBlock Text="支持 JPG、PNG，每张最多 40 MB。导入后裁切为 1440×810，空白填白色；原图保存在 Backgrounds/Originals。重新裁切会新增背景，保留旧版本。"
+                               TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock x:Name="EmptyHint" Text="还没有背景图片，点击“导入图片”添加。"/>
+                    <GridView x:Name="Gallery" SelectionMode="Single" SelectionChanged="Gallery_SelectionChanged" MaxHeight="250"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <GridView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Width="164" Margin="4" Spacing="6">
+                                    <Grid Height="94" Background="{ThemeResource LayerFillColorDefaultBrush}">
+                                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                                    </Grid>
+                                    <TextBlock Text="{Binding DisplayName}" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{Binding FileName}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridView.ItemTemplate>
+                    </GridView>
+                </StackPanel>
+            </Border>
+            <Border Background="{StaticResource AppearanceCardBackground}" CornerRadius="8" Padding="20">
+                <StackPanel x:Name="ImageOptions" Spacing="10">
+                    <TextBlock Text="背景效果" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock Text="调整即时预览，每张图片分别记住设置。" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock x:Name="OpacityLabel" Text="图片不透明度"/>
+                    <Slider x:Name="ImageOpacity" Minimum="0" Maximum="100" StepFrequency="1" ValueChanged="SliderChanged"/>
+                    <TextBlock x:Name="OverlayLabel" Text="遮罩强度"/>
+                    <Slider x:Name="OverlayOpacity" Minimum="0" Maximum="100" StepFrequency="1" ValueChanged="SliderChanged"/>
+                    <TextBlock Text="遮罩随系统主题变为浅色或深色，用于提高文字可读性。" TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <ComboBox x:Name="StretchMode" Header="显示方式" SelectionChanged="StretchChanged" HorizontalAlignment="Stretch">
+                        <ComboBoxItem Content="等比铺满（裁剪边缘）" Tag="UniformToFill"/>
+                        <ComboBoxItem Content="完整显示（保留空白）" Tag="Uniform"/>
+                        <ComboBoxItem Content="拉伸填充" Tag="Fill"/>
+                    </ComboBox>
+                </StackPanel>
+            </Border>
         </StackPanel>
-    </Grid>
+    </ScrollViewer>
 </Page>

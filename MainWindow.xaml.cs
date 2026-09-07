@@ -21,7 +21,9 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        InitializeAppearance();
         InitializeGameReordering();
+        InitializeSidebarResizing();
 
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(TopBarGrid);
@@ -104,7 +106,7 @@ public sealed partial class MainWindow : Window
             _appWindow.SetIcon(iconPath);
         }
 
-        _appWindow.Resize(new SizeInt32(1100, 780));
+        _appWindow.Resize(new SizeInt32(1440, 810));
 
         if (_appWindow.Presenter is OverlappedPresenter presenter)
         {
@@ -165,8 +167,6 @@ public sealed partial class MainWindow : Window
                 break;
             case "AppearanceSettings":
                 ContentFrame.Navigate(typeof(Views.Pages.AppearanceSettingsPage));
-                break;
-            case "Placeholder":
                 break;
         }
     }

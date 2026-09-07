@@ -43,6 +43,8 @@ Name: "chinesesimplified"; MessagesFile: "packaging\languages\ChineseSimplified.
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Dirs]
+; 用户背景单独授权写入；升级、卸载时保留用户导入的图片。
+Name: "{app}\Backgrounds"; Permissions: users-modify; Flags: uninsneveruninstall
 Name: "{app}\logs"; Permissions: users-modify
 
 [InstallDelete]

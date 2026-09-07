@@ -7,11 +7,11 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <ScrollViewer Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}">
+    <ScrollViewer Background="{StaticResource AppearancePageBackground}">
         <StackPanel Padding="24" Spacing="16" MaxWidth="1000">
 
             <!-- 游戏源选择 -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            <Border Background="{StaticResource AppearanceCardBackground}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
                     CornerRadius="8" Padding="16">
                 <StackPanel Spacing="12">
@@ -55,7 +55,7 @@
             </Border>
 
             <!-- BuildID 和 Manifest -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            <Border Background="{StaticResource AppearanceCardBackground}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
                     CornerRadius="8" Padding="16">
                 <StackPanel Spacing="12">
@@ -101,7 +101,7 @@
             </StackPanel>
 
             <!-- 日志输出 -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            <Border Background="{StaticResource AppearanceCardBackground}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
                     CornerRadius="8" Padding="16">
                 <StackPanel Spacing="12">

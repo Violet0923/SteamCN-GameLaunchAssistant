@@ -45,6 +45,27 @@ try
     });
     Check(service.GetInitialSidebarId() == null && service.GetAll().Any(p => p.AppId == "123"),
         "old settings migration preserves data without introducing a default sidebar game");
+    Check(!store.Load().Appearance.Enabled, "legacy settings default to original appearance");
+    store.Update(s =>
+    {
+        s.Appearance.Enabled = true;
+        s.Appearance.SelectedImage = "first.png";
+        s.Appearance.Current.Opacity = 0.35;
+        s.Appearance.SelectedImage = "second.jpg";
+        s.Appearance.Current.OverlayOpacity = 0.7;
+        s.Appearance.Current.Stretch = "Uniform";
+    });
+    var appearance = store.Load().Appearance;
+    Check(appearance.Enabled && appearance.SelectedImage == "second.jpg"
+        && appearance.Current.OverlayOpacity == 0.7 && appearance.Current.Stretch == "Uniform"
+        && appearance.Images["first.png"].Opacity == 0.35,
+        "background selection and independent per-image options survive restart");
+    service.Create("Appearance regression");
+    Check(store.Load().Appearance.SelectedImage == "second.jpg", "game updates preserve appearance settings");
+    var gameCount = service.GetAll().Count;
+    store.Update(s => s.Appearance.Enabled = false);
+    Check(service.GetAll().Count == gameCount && store.Load().Appearance.Images.Count == 2,
+        "disabling background preserves games and saved image options");
     Console.WriteLine($"All {checks} checks passed.");
 }
 finally

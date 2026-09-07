@@ -1,0 +1,33 @@
+<ContentDialog
+    x:Class="SteamCNGameLaunchAssistant.Views.Dialogs.BackgroundCropDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="裁切背景 · 1440 × 810（16:9）"
+    PrimaryButtonText="确认裁切" CloseButtonText="取消" DefaultButton="Primary">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="12">
+            <TextBlock Text="拖动图片调整位置，滚轮或滑块缩放。框内即为保存结果，空白区域填充白色。"
+                       TextWrapping="Wrap"/>
+            <Border BorderBrush="{ThemeResource AccentFillColorDefaultBrush}" BorderThickness="2">
+                <Viewbox Stretch="Uniform" MaxHeight="360">
+                    <Canvas x:Name="CropCanvas" Width="1440" Height="810" Background="White"
+                            PointerPressed="Canvas_Pressed" PointerMoved="Canvas_Moved"
+                            PointerReleased="Canvas_Released" PointerCanceled="Canvas_Released"
+                            PointerCaptureLost="Canvas_CaptureLost" PointerWheelChanged="Canvas_Wheel">
+                        <Canvas.Clip><RectangleGeometry Rect="0,0,1440,810"/></Canvas.Clip>
+                        <Image x:Name="CropImage" Stretch="Fill" IsHitTestVisible="False"/>
+                    </Canvas>
+                </Viewbox>
+            </Border>
+            <TextBlock x:Name="ZoomLabel" Text="缩放"/>
+            <Slider x:Name="ZoomSlider" Minimum="5" Maximum="400" Value="100" StepFrequency="1"
+                    AutomationProperties.Name="图片缩放" ValueChanged="Zoom_Changed"/>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Content="铺满" Click="Cover_Click"/>
+                <Button Content="完整显示" Click="Fit_Click"/>
+                <Button Content="居中" Click="Center_Click"/>
+                <Button Content="重置" Click="Cover_Click"/>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</ContentDialog>
