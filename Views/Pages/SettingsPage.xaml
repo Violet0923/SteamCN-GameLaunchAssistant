@@ -7,7 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <ScrollViewer Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}">
+    <ScrollViewer Background="{StaticResource AppearancePageBackground}">
         <StackPanel Padding="24" Spacing="16" MaxWidth="1000">
 
             <!-- 页面标题 -->
@@ -44,7 +44,7 @@
             </Border>
 
             <!-- Steam 全局配置（v2.2.0 起：路径 / 库路径 / SteamID 统一在此处管理，供所有游戏页面共享） -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            <Border Background="{StaticResource AppearanceCardBackground}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
                     CornerRadius="8" Padding="16">
                 <StackPanel Spacing="16">
@@ -108,7 +108,7 @@
             </Border>
 
             <!-- 开发者选项 -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            <Border Background="{StaticResource AppearanceCardBackground}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
                     CornerRadius="8" Padding="16">
                 <StackPanel Spacing="16">
@@ -191,7 +191,7 @@
             </Border>
 
             <!-- 语言设置（预留） -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            <Border Background="{StaticResource AppearanceCardBackground}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
                     CornerRadius="8" Padding="16">
                 <StackPanel Spacing="16">
@@ -227,7 +227,7 @@
             </Border>
 
             <!-- 关于 -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            <Border Background="{StaticResource AppearanceCardBackground}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
                     CornerRadius="8" Padding="16">
                 <StackPanel Spacing="12">

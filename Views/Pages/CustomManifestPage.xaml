@@ -13,7 +13,7 @@
         </DataTemplate>
     </Page.Resources>
 
-    <ScrollViewer Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}">
+    <ScrollViewer Background="{StaticResource AppearancePageBackground}">
         <StackPanel Padding="24" Spacing="16" MaxWidth="1000">
 
             <!-- 全局配置缺失提示（OnLoaded 判定后切换可见性） -->
@@ -25,7 +25,7 @@
                      IsClosable="False"/>
 
             <!-- 预设管理：保留原自定义页的完整下拉切换功能 -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            <Border Background="{StaticResource AppearanceCardBackground}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
                     CornerRadius="8" Padding="16">
                 <StackPanel Spacing="12">
@@ -44,7 +44,7 @@
             </Border>
 
             <!-- 游戏标识 -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            <Border Background="{StaticResource AppearanceCardBackground}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
                     CornerRadius="8" Padding="16">
                 <StackPanel Spacing="12">
@@ -113,7 +113,7 @@
             </Border>
 
             <!-- 游戏可执行文件 -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            <Border Background="{StaticResource AppearanceCardBackground}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
                     CornerRadius="8" Padding="16">
                 <StackPanel Spacing="12">
@@ -168,7 +168,7 @@
             </Border>
 
             <!-- BuildID 和 Manifest -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            <Border Background="{StaticResource AppearanceCardBackground}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
                     CornerRadius="8" Padding="16">
                 <StackPanel Spacing="12">
@@ -214,7 +214,7 @@
             </StackPanel>
 
             <!-- 运行日志 -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            <Border Background="{StaticResource AppearanceCardBackground}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
                     CornerRadius="8" Padding="16">
                 <StackPanel Spacing="12">

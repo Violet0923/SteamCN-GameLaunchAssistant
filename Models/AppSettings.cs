@@ -4,6 +4,8 @@ namespace WetheringWavesSteamHelper_WinUI.Models;
 
 public class AppSettings
 {
+    public AppearanceSettings Appearance { get; set; } = new();
+    public double SidebarWidth { get; set; } = 210;
     // ===== 全局通用 Steam 配置（v2.2.0 起由设置页统一管理） =====
     public string SteamInstallPath { get; set; } = "";
     public string SteamLibraryPath { get; set; } = "";

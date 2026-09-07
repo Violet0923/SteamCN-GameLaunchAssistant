@@ -7,6 +7,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../Models/AppSettings.cs" Link="Models/AppSettings.cs" />
+    <Compile Include="../../Models/AppearanceSettings.cs" Link="Models/AppearanceSettings.cs" />
     <Compile Include="../../Services/SettingsService.cs" Link="Services/SettingsService.cs" />
     <Compile Include="../../Services/CustomManifestService.cs" Link="Services/CustomManifestService.cs" />
   </ItemGroup>

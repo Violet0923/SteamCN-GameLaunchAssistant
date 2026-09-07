@@ -5,15 +5,20 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:WetheringWavesSteamHelper_WinUI.Controls"
     mc:Ignorable="d"
     Title="Steam国服游戏启动助手">
 
-    <Grid>
+    <Grid x:Name="WindowRoot" Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="48"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+
+        <Image x:Name="BackgroundImage" Grid.RowSpan="3" IsHitTestVisible="False" Visibility="Collapsed"/>
+        <Border x:Name="BackgroundOverlay" Grid.RowSpan="3" IsHitTestVisible="False"
+                Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}" Visibility="Collapsed"/>
 
         <!-- 顶部标题栏 -->
         <Grid x:Name="TopBarGrid" Grid.Row="0" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
@@ -77,11 +82,6 @@
                         <FontIcon Glyph="&#xE710;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="敬请期待" Tag="Placeholder" IsEnabled="False">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE823;"/>
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
             </NavigationView.MenuItems>
 
             <!-- 底部设置入口 -->
@@ -105,6 +105,23 @@
                 HorizontalAlignment="Left" VerticalAlignment="Top"
                 Background="{ThemeResource AccentFillColorDefaultBrush}"
                 CornerRadius="1.5" IsHitTestVisible="False" Visibility="Collapsed"/>
+
+        <controls:SidebarResizeThumb x:Name="SidebarResizeHandle" Grid.Row="2"
+                Width="8" HorizontalAlignment="Left" VerticalAlignment="Stretch"
+                IsTabStop="True" Opacity="0.35"
+                AutomationProperties.Name="调整侧边栏宽度"
+                ToolTipService.ToolTip="拖动调整侧边栏宽度；双击恢复默认。也可用左右方向键调整。"
+                DragDelta="SidebarResize_DragDelta" DragCompleted="SidebarResize_DragCompleted"
+                KeyDown="SidebarResize_KeyDown" DoubleTapped="SidebarResize_DoubleTapped">
+            <controls:SidebarResizeThumb.Template>
+                <ControlTemplate TargetType="controls:SidebarResizeThumb">
+                    <Grid Background="Transparent">
+                        <Border Width="2" HorizontalAlignment="Center"
+                                Background="{ThemeResource ControlStrongFillColorDefaultBrush}"/>
+                    </Grid>
+                </ControlTemplate>
+            </controls:SidebarResizeThumb.Template>
+        </controls:SidebarResizeThumb>
 
         <!-- 强制更新全屏遮罩（锁定整个内容区，不影响标题栏） -->
         <Grid x:Name="forceUpdateOverlay"
