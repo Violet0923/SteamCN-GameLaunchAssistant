@@ -45,4 +45,49 @@ public static class SteamAppSelectionService
     private static bool Allows(string restriction, string target) => string.IsNullOrWhiteSpace(restriction)
         || restriction.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Contains(target, StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// 一键更新时优先沿用当前仍有 Manifest 的 Depot；否则只在唯一有效候选时自动切换。
+    /// 多个有效候选保持歧义，不依赖上游返回顺序猜测。
+    /// </summary>
+    public static AutomaticCandidateResult<SteamDepotCandidate> ChooseDepotForAutomaticUpdate(
+        SteamAppSelection selection, string currentDepotId)
+    {
+        var usable = selection.Depots.Where(candidate => !string.IsNullOrWhiteSpace(candidate.Manifest)).ToList();
+        var current = usable.FirstOrDefault(candidate =>
+            string.Equals(candidate.Depot.Id, currentDepotId.Trim(), StringComparison.OrdinalIgnoreCase));
+        if (current != null) return AutomaticCandidateResult<SteamDepotCandidate>.Success(current);
+        return usable.Count switch
+        {
+            1 => AutomaticCandidateResult<SteamDepotCandidate>.Success(usable[0]),
+            0 => AutomaticCandidateResult<SteamDepotCandidate>.Failure("没有找到带有可用 Manifest 的 Depot。"),
+            _ => AutomaticCandidateResult<SteamDepotCandidate>.Failure(
+                $"找到 {usable.Count} 个带有可用 Manifest 的 Depot，且当前 Depot 不在其中，请先手动选择。")
+        };
+    }
+
+    /// <summary>占位 EXE 同样优先沿用当前有效值，否则只自动接受唯一候选。</summary>
+    public static AutomaticCandidateResult<SteamExecutableCandidate> ChooseExecutableForAutomaticUpdate(
+        SteamAppSelection selection, string currentExecutable)
+    {
+        var normalized = SteamPathValidator.TryValidate(currentExecutable.Trim(), out _, requireExe: true)
+            ? SteamPathValidator.Normalize(currentExecutable.Trim()) : "";
+        var current = selection.Executables.FirstOrDefault(candidate =>
+            string.Equals(candidate.Path, normalized, StringComparison.OrdinalIgnoreCase));
+        if (current != null) return AutomaticCandidateResult<SteamExecutableCandidate>.Success(current);
+        return selection.Executables.Count switch
+        {
+            1 => AutomaticCandidateResult<SteamExecutableCandidate>.Success(selection.Executables[0]),
+            0 => AutomaticCandidateResult<SteamExecutableCandidate>.Failure("没有找到可用的 Steam 启动 EXE。"),
+            _ => AutomaticCandidateResult<SteamExecutableCandidate>.Failure(
+                $"找到 {selection.Executables.Count} 个 Steam 启动 EXE，且当前值不在其中，请先手动选择。")
+        };
+    }
+}
+
+public sealed record AutomaticCandidateResult<T>(T? Candidate, string Error) where T : class
+{
+    public bool IsSuccess => Candidate != null;
+    public static AutomaticCandidateResult<T> Success(T candidate) => new(candidate, "");
+    public static AutomaticCandidateResult<T> Failure(string error) => new(null, error);
 }

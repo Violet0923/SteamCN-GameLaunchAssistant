@@ -46,6 +46,8 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 ; 用户背景单独授权写入；升级、卸载时保留用户导入的图片。
 Name: "{app}\Backgrounds"; Permissions: users-modify; Flags: uninsneveruninstall
 Name: "{app}\logs"; Permissions: users-modify
+; 一键更新的 ACF 滚动备份；升级和卸载时保留，便于用户恢复。
+Name: "{app}\backups"; Permissions: users-modify; Flags: uninsneveruninstall
 
 [InstallDelete]
 ; Remove only obsolete application binaries and shortcuts, never user data or logs.

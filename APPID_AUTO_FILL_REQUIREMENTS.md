@@ -160,7 +160,30 @@ Depot 是游戏内容的分组，可能分别存放公共资源、平台文件�
 | 请求期间切换 AppID／预设或修改输入 | 过期结果不覆盖当前表单或用户新输入 |
 | 获取成功 | 仅更新表单；保存和生成仍由用户通过原有操作触发 |
 
-## 10. 参考资料
+## 10. 一键更新扩展（已实现）
+
+预设卡片提供独立的「一键更新」按钮。它复用原有元数据服务，但与只填充表单的「自动获取游戏信息」保持不同语义：一键更新在候选能够安全确定且全部字段通过校验后，直接生成并覆盖对应 ACF，不再弹出覆盖确认。
+
+自动候选规则不依赖接口返回顺序：
+
+1. 当前 Depot 仍有 public Manifest 时保持当前选择。
+2. 当前 Depot 不可用时，只有一个带 Manifest 的适用 Depot 才自动切换。
+3. 多个带 Manifest 的 Depot 同时存在时停止覆盖，显示候选供用户选择后重试。
+4. 占位 EXE 优先保持当前有效路径，否则只接受唯一候选；多个不同 EXE 时同样停止覆盖。
+5. 名称、安装目录、BuildID、Depot、Manifest 或 EXE 任一缺失时均不写入 ACF。
+
+ACF 内容变化时先将原文件备份到软件安装目录的 `backups\<AppID>`，再使用目标目录中的临时文件原子替换。备份按 AppID 隔离，每个 AppID 最多保留最近 2 份，并删除超过 30 天的文件；内容完全相同时跳过覆盖和备份。备份失败会阻止覆盖，清理失败不破坏已完成的更新。安装器预先创建 `backups` 并授予普通用户修改权限；便携运行时则要求程序所在目录本身可写。
+
+实现职责分布：
+
+| 位置 | 职责 |
+| --- | --- |
+| `Services/SteamAppSelectionService.cs` | 纯候选决策，保持当前有效值并拒绝歧义 |
+| `Services/ManifestFileService.cs` | 内容比较、覆盖前备份、原子替换及滚动清理 |
+| `Views/Pages/CustomManifestPage.OneClickUpdate.cs` | 协调请求、页面状态、字段校验、写入和结果提示 |
+| `Tests/ManifestUpdate.Tests` | 覆盖候选策略、两份／30 天保留规则和按 AppID 隔离 |
+
+## 11. 参考资料
 
 - [SteamCMD API 文档](https://www.steamcmd.net/)：接口形式、响应示例和认证说明。
 - [Steamworks Depot 文档](https://partner.steamgames.com/doc/store/application/depots)：Depot 的用途和配置。
