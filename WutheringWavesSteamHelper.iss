@@ -49,6 +49,8 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 ; 安装器以管理员身份运行，在此对 logs 子目录授予普通用户写权限
 ; 这样应用在非管理员状态下也能在 exe 同目录写入日志
 Name: "{app}\logs"; Permissions: users-modify
+; 一键更新的 ACF 滚动备份保存在安装目录，普通用户需要创建、替换和清理文件。
+Name: "{app}\backups"; Permissions: users-modify; Flags: uninsneveruninstall
 ; 用户导入的背景图片；升级时保留，只开放数据子目录的写权限。
 Name: "{app}\Backgrounds"; Permissions: users-modify; Flags: uninsneveruninstall
 

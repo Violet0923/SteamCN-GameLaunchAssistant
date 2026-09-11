@@ -283,7 +283,7 @@
                             <TextBlock Text="帮助文档" FontSize="14" FontWeight="Medium" VerticalAlignment="Center"/>
                             <HyperlinkButton Content="打开帮助页面 →"
                                              HorizontalAlignment="Right"
-                                             NavigateUri="https://www.iryougi.com/index.php/wutheringwavessteamhelper/"/>
+                                             NavigateUri="https://www.bilibili.com/video/BV1rBbT6hEaE/?"/>
                         </Grid>
                         <Grid>
                             <TextBlock Text="源代码" FontSize="14" FontWeight="Medium" VerticalAlignment="Center"/>
